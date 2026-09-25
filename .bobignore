@@ -92,3 +92,6 @@ id_dsa
 node_modules/
 
 .work/
+
+# Held-out mutants are hidden from Bob while tests-added/ is written (see docs/PLAN.md, Task 5)
+mutants-heldout/
