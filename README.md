@@ -43,6 +43,18 @@ Round 3b is the point of the project. Bob's first test fixed the line it was sho
 
 A first round of 6 bugs was fully caught. Bob then built a **scout**: it ranks each public function by how many lines of the test file mention it. It ranked `unflatten` 19, `escapePath` 22 and `deepKeys` 32 mentions, versus 164 for `getProperty`. The next round attacked `escapePath` and two helpers behind `deepKeys`; `unflatten` was not attacked. One bug got through all 77 tests: a looser number check in `normalizeEntries`. On an array with an extra key `'1abc'`, it makes `deepKeys()` return `list[1]` twice instead of `list[1]` and `list.1abc`: two different keys, one path. Run `node docs/examples/dp-r2-3-collision.mjs` to see it. Bob's test now catches the bug (`results/dot-prop-r2-after.json`, 3 / 3) using an oversized index; the `'1abc'` input itself is not covered yet.
 
+## By hand vs uncaught
+
+We timed the manual way once, on one bug (FP-08 in quick-lru): edit the line, run the suite, check the result, revert, run again.
+
+| | By hand, 1 bug | uncaught, 10 bugs |
+|---|---|---|
+| Wall-clock time | 4 min 38 s | 4.9 s (`results/before.json`, `runtimeMs`, including three baseline runs) |
+| Misleading results | The first run after planting the bug said "1 test failed", which looks like a catch. It was a timing-sensitive test; it failed again later on the original code | That test is found in the baseline runs and set aside automatically |
+| Judgment needed | Is this failure the bug, or noise? Rerun and compare | None: a bug counts as caught only if a test that is stable on the original code fails |
+
+Most of the manual time went into telling the bug from the noise. One measurement, one person, one bug: read it as an illustration, not a benchmark.
+
 ## How IBM Bob was used
 
 Bob is the engine: it wrote the runner, the scout, every planted bug and every added test. See [`docs/BOB-USAGE.md`](docs/BOB-USAGE.md) for the full statement and [`bob_sessions/`](bob_sessions/) for the 13 task summaries.
