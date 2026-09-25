@@ -11,7 +11,7 @@
 <header class="hero" id="top">
   <div class="wrap">
     <p class="badge"><span class="dot"></span><span data-bind="before.testCount">…</span> tests passing</p>
-    <h1>Green is not guarding.</h1>
+    <h1><span class="grad">Green</span> is not guarding.</h1>
     <p class="lede">We planted the kind of bugs real systems ship into two popular JavaScript libraries. Their test suites stayed green. IBM Bob found the gaps, wrote the missing tests, and then we checked Bob's tests the same way.</p>
     <div class="stats">
       <div class="stat"><span class="num" data-count="stats.planted">0</span><span class="lbl">realistic bugs planted</span></div>
@@ -80,7 +80,7 @@
   <h3>Scout-guided round: <span class="counter" data-count="dp2.caught">0</span> / <span data-bind="dp2.total">…</span> caught. One real blind spot.</h3>
   <div class="cards" data-cards="dp2.survived"></div>
   <div class="example">
-    <p class="pair-label">What that bug does, on a real input (<code>docs/examples/dp-r2-3-collision.mjs</code>)</p>
+    <p class="pair-label">Why it matters, on one more input. This is a demo script (<code>docs/examples/dp-r2-3-collision.mjs</code>), not one of Bob's tests.</p>
 <pre><code>const list = ['a', 'b']; list['1abc'] = 'collides';
 deepKeys({list})
 <span class="ok">original: list[0], list[1], list.1abc</span>
