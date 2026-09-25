@@ -1,0 +1,13 @@
+{
+  "id": "FP-03",
+  "kind": "semantic",
+  "pattern": "size-counter-desync-on-update",
+  "description": "Updating an existing key calls #set(), which increments #size and may trigger early rotation",
+  "file": "subject/quick-lru/index.js",
+  "find": "this.#cache.set(key, {\n\t\t\t\tvalue,\n\t\t\t\texpiry,\n\t\t\t});",
+  "replace": "this.#set(key, {\n\t\t\t\tvalue,\n\t\t\t\texpiry,\n\t\t\t});",
+  "targetLine": 126,
+  "targetFunction": "set",
+  "productionImpact": "#size increments on every update of an existing key, causing the rotation threshold to be crossed prematurely. Live entries are evicted before they should be, reducing effective cache capacity and triggering unnecessary eviction callbacks on workloads with frequent updates.",
+  "detectedBy": null
+}

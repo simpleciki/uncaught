@@ -1,0 +1,13 @@
+{
+  "id": "FP-07-H",
+  "kind": "semantic",
+  "pattern": "evict-protects-last-item-incorrectly",
+  "description": "evict() retains one extra item by slicing one position too late when rebuilding #oldCache",
+  "file": "subject/quick-lru/index.js",
+  "find": "this.#oldCache = new Map(items.slice(evictCount));",
+  "replace": "this.#oldCache = new Map(items.slice(evictCount - 1));",
+  "targetLine": 218,
+  "targetFunction": "evict",
+  "productionImpact": "The last item that should have been evicted remains in #oldCache because the slice starts one position too early. The eviction callback is not fired for that item, so downstream listeners never receive its invalidation signal, and the cache holds one more entry than requested.",
+  "detectedBy": null
+}

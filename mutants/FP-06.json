@@ -1,0 +1,13 @@
+{
+  "id": "FP-06",
+  "kind": "semantic",
+  "pattern": "resize-drops-newest-instead-of-oldest",
+  "description": "resize() keeps the oldest entries and discards the newest, inverting the LRU guarantee",
+  "file": "subject/quick-lru/index.js",
+  "find": "this.#oldCache = new Map(items.slice(removeCount));",
+  "replace": "this.#oldCache = new Map(items.slice(0, newSize));",
+  "targetLine": 197,
+  "targetFunction": "resize",
+  "productionImpact": "When shrinking the cache, the most-recently-used entries are evicted and the least-recently-used entries are retained, inverting the LRU guarantee. Applications that resize on memory pressure will find their cache populated with cold, idle data while hot keys must be re-fetched from the backing store, increasing latency and downstream load.",
+  "detectedBy": null
+}

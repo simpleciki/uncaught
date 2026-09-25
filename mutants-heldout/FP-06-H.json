@@ -1,0 +1,13 @@
+{
+  "id": "FP-06-H",
+  "kind": "semantic",
+  "pattern": "resize-drops-newest-instead-of-oldest",
+  "description": "resize() emits eviction callbacks for the items it keeps instead of the items it removes",
+  "file": "subject/quick-lru/index.js",
+  "find": "this.#emitEvictions(items.slice(0, removeCount));",
+  "replace": "this.#emitEvictions(items.slice(removeCount));",
+  "targetLine": 194,
+  "targetFunction": "resize",
+  "productionImpact": "Eviction callbacks fire for the entries that are being retained, not the ones being discarded. Downstream invalidation listeners remove still-live keys from secondary caches and do not remove the actually-evicted keys, leaving the secondary store with ghost entries for discarded items and premature invalidations for items that are still present.",
+  "detectedBy": null
+}

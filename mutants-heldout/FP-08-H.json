@@ -1,0 +1,13 @@
+{
+  "id": "FP-08-H",
+  "kind": "semantic",
+  "pattern": "expiresin-wrong-cache-wins",
+  "description": "peek() reads the value from #oldCache even when the key exists in the hot #cache",
+  "file": "subject/quick-lru/index.js",
+  "find": "return this.#peek(key, this.#cache);",
+  "replace": "return this.#peek(key, this.#oldCache);",
+  "targetLine": 151,
+  "targetFunction": "peek",
+  "productionImpact": "For any key present in #cache, peek() looks up and returns the value from the shadow #oldCache copy instead of the live #cache copy. Callers receive a stale value that may have a different expiry or an older data version, while the hot cache entry is silently ignored.",
+  "detectedBy": null
+}

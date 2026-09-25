@@ -1,0 +1,13 @@
+{
+  "id": "FP-02-H",
+  "kind": "classic-operator",
+  "pattern": "silent-eviction-suppression",
+  "description": "Per-item eviction callback in #deleteIfExpired is suppressed by an inverted typeof guard",
+  "file": "subject/quick-lru/index.js",
+  "find": "if (typeof this.#onEviction === 'function') {",
+  "replace": "if (typeof this.#onEviction !== 'function') {",
+  "targetLine": 42,
+  "targetFunction": "#deleteIfExpired",
+  "productionImpact": "When an onEviction handler is registered the per-expiry callback is never invoked because the guard now returns true only when no handler exists. Downstream systems that rely on the expiry-driven eviction signal to invalidate secondary caches or revoke sessions receive no notification, allowing expired state to persist.",
+  "detectedBy": null
+}

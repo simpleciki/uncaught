@@ -1,0 +1,13 @@
+{
+  "id": "FP-04",
+  "kind": "semantic",
+  "pattern": "old-cache-shadow-on-iteration",
+  "description": "Keys present in both caches are yielded twice by [Symbol.iterator]",
+  "file": "subject/quick-lru/index.js",
+  "find": "\t\tfor (const item of this.#oldCache) {\n\t\t\tconst [key, value] = item;\n\t\t\tif (!this.#cache.has(key)) {\n\t\t\t\tconst deleted = this.#deleteIfExpired(key, value);\n\t\t\t\tif (deleted === false) {\n\t\t\t\t\tyield [key, value.value];\n\t\t\t\t}\n\t\t\t}\n\t\t}",
+  "replace": "\t\tfor (const item of this.#oldCache) {\n\t\t\tconst [key, value] = item;\n\t\t\t\tconst deleted = this.#deleteIfExpired(key, value);\n\t\t\t\tif (deleted === false) {\n\t\t\t\t\tyield [key, value.value];\n\t\t\t\t}\n\t\t}",
+  "targetLine": 244,
+  "targetFunction": "[Symbol.iterator]",
+  "productionImpact": "Promoted keys are yielded once from #cache and again from #oldCache, inflating the iteration count. Callers that spread entries into a Map, array, or object receive duplicate key-value pairs, causing incorrect counts and doubled values for any recently accessed key.",
+  "detectedBy": null
+}

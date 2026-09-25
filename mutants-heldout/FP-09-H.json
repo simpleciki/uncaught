@@ -1,0 +1,13 @@
+{
+  "id": "FP-09-H",
+  "kind": "classic-operator",
+  "pattern": "delete-size-underflow",
+  "description": "delete() decrements #size by 2 instead of 1, causing faster underflow per deletion",
+  "file": "subject/quick-lru/index.js",
+  "find": "\t\t\tthis.#size--;",
+  "replace": "\t\t\tthis.#size -= 2;",
+  "targetLine": 169,
+  "targetFunction": "delete",
+  "productionImpact": "Every deletion of a #cache key decrements #size by 2 instead of 1, driving the counter to negative values twice as fast. The rotation threshold is not reached until twice the expected number of insertions have been made, causing the cache to grow well above #maxSize and delaying eviction callbacks proportionally.",
+  "detectedBy": null
+}

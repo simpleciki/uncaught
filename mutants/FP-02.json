@@ -1,0 +1,13 @@
+{
+  "id": "FP-02",
+  "kind": "classic-operator",
+  "pattern": "silent-eviction-suppression",
+  "description": "Eviction callback guard is inverted so the loop never runs when a handler is registered",
+  "file": "subject/quick-lru/index.js",
+  "find": "if (typeof this.#onEviction !== 'function') {",
+  "replace": "if (typeof this.#onEviction === 'function') {",
+  "targetLine": 31,
+  "targetFunction": "#emitEvictions",
+  "productionImpact": "When an onEviction handler is registered it causes an immediate return, silencing all eviction callbacks. Downstream systems that rely on the callback for cache-invalidation, write-through, or audit-logging receive no signal when entries are displaced and continue to serve stale data indefinitely.",
+  "detectedBy": null
+}

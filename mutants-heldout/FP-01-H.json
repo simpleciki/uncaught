@@ -1,0 +1,13 @@
+{
+  "id": "FP-01-H",
+  "kind": "semantic",
+  "pattern": "stale-promoted-as-fresh",
+  "description": "#getOrDeleteIfExpired returns item.value even when the item was just deleted as expired",
+  "file": "subject/quick-lru/index.js",
+  "find": "\t\tconst deleted = this.#deleteIfExpired(key, item);\n\t\tif (deleted === false) {\n\t\t\treturn item.value;\n\t\t}",
+  "replace": "\t\tconst deleted = this.#deleteIfExpired(key, item);\n\t\tif (deleted === true) {\n\t\t\treturn item.value;\n\t\t}",
+  "targetLine": 53,
+  "targetFunction": "#getOrDeleteIfExpired",
+  "productionImpact": "An item is deleted as expired yet its value is returned to the caller because the deleted-flag check is inverted. Every expired item is served one final time after deletion, breaking any hard TTL contract and leaking expired data to consumers who expected an undefined result.",
+  "detectedBy": null
+}

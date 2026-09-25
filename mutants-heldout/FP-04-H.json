@@ -1,0 +1,13 @@
+{
+  "id": "FP-04-H",
+  "kind": "semantic",
+  "pattern": "old-cache-shadow-on-iteration",
+  "description": "entriesDescending() yields promoted keys twice by omitting the #cache.has guard for #oldCache",
+  "file": "subject/quick-lru/index.js",
+  "find": "\t\titems = [...this.#oldCache];\n\t\tfor (let i = items.length - 1; i >= 0; --i) {\n\t\t\tconst item = items[i];\n\t\t\tconst [key, value] = item;\n\t\t\tif (!this.#cache.has(key)) {\n\t\t\t\tconst deleted = this.#deleteIfExpired(key, value);\n\t\t\t\tif (deleted === false) {\n\t\t\t\t\tyield [key, value.value];\n\t\t\t\t}\n\t\t\t}\n\t\t}",
+  "replace": "\t\titems = [...this.#oldCache];\n\t\tfor (let i = items.length - 1; i >= 0; --i) {\n\t\t\tconst item = items[i];\n\t\t\tconst [key, value] = item;\n\t\t\t\tconst deleted = this.#deleteIfExpired(key, value);\n\t\t\t\tif (deleted === false) {\n\t\t\t\t\tyield [key, value.value];\n\t\t\t\t}\n\t\t}",
+  "targetLine": 266,
+  "targetFunction": "entriesDescending",
+  "productionImpact": "Promoted keys are emitted twice in descending order — once from #cache and once from #oldCache — inflating the result for every consumer of entriesDescending(). Derived structures built from this iterator have duplicate entries for recently accessed keys, corrupting entry counts and any ordering logic that depends on a unique-key stream.",
+  "detectedBy": null
+}

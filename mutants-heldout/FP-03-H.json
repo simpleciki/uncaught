@@ -1,0 +1,13 @@
+{
+  "id": "FP-03-H",
+  "kind": "classic-operator",
+  "pattern": "size-counter-desync-on-update",
+  "description": "#set() rotates one insertion late by using > instead of >= for the size threshold",
+  "file": "subject/quick-lru/index.js",
+  "find": "if (this.#size >= this.#maxSize) {",
+  "replace": "if (this.#size > this.#maxSize) {",
+  "targetLine": 72,
+  "targetFunction": "#set",
+  "productionImpact": "#size must exceed #maxSize by one before rotation occurs, so the cache always holds one extra item beyond its configured limit before swapping caches. The eviction of the oldest cache is delayed by one insertion, causing #oldCache to be retained longer than expected and allowing stale entries to survive past their intended eviction point.",
+  "detectedBy": null
+}

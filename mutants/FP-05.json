@@ -1,0 +1,13 @@
+{
+  "id": "FP-05",
+  "kind": "classic-operator",
+  "pattern": "expiry-boundary-off-by-one",
+  "description": "Item at exact expiry millisecond is served instead of expired",
+  "file": "subject/quick-lru/index.js",
+  "find": "item.expiry <= Date.now()",
+  "replace": "item.expiry < Date.now()",
+  "targetLine": 41,
+  "targetFunction": "#deleteIfExpired",
+  "productionImpact": "Items whose TTL expires at precisely the current millisecond remain in the cache and are returned to callers. Clients relying on hard expiry deadlines such as auth tokens or rate-limit windows receive data they should not receive, violating time-bounded access policies.",
+  "detectedBy": null
+}

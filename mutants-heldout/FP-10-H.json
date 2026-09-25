@@ -1,0 +1,13 @@
+{
+  "id": "FP-10-H",
+  "kind": "semantic",
+  "pattern": "ascending-iterator-yields-duplicates",
+  "description": "size getter counts #oldCache keys even when already counted in #cache, inflating the reported size",
+  "file": "subject/quick-lru/index.js",
+  "find": "\t\tfor (const key of this.#oldCache.keys()) {\n\t\t\tif (!this.#cache.has(key)) {\n\t\t\t\toldCacheSize++;\n\t\t\t}\n\t\t}",
+  "replace": "\t\tfor (const key of this.#oldCache.keys()) {\n\t\t\t\toldCacheSize++;\n\t\t}",
+  "targetLine": 291,
+  "targetFunction": "size",
+  "productionImpact": "The reported size includes promoted keys once from #size and again from oldCacheSize, so the getter returns a count larger than the number of unique accessible keys. Callers that gate on cache size for capacity decisions will trigger eviction or throttling too early, wasting resources and degrading hit rates unnecessarily.",
+  "detectedBy": null
+}

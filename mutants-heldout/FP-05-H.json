@@ -1,0 +1,8 @@
+{
+  "id": "FP-05-H",
+  "kind": "classic-operator",
+  "pattern": "expiry-boundary-off-by-one",
+  "description": "has() returns true for an item at its exact expiry millisecond due to off-by-one in #deleteIfExpired",
+  "skip": true,
+  "skipReason": "FP-05 has only one expiry comparison in the codebase (line 41 in #deleteIfExpired); all has/get/peek paths delegate to that same call, so there is no honest second location that exercises a distinct form of the boundary check."
+}

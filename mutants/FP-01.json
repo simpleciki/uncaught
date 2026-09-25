@@ -1,0 +1,13 @@
+{
+  "id": "FP-01",
+  "kind": "semantic",
+  "pattern": "stale-promoted-as-fresh",
+  "description": "Expired item in #oldCache is promoted to #cache and returned as live data",
+  "file": "subject/quick-lru/index.js",
+  "find": "if (this.#deleteIfExpired(key, item) === false) {",
+  "replace": "if (true) {",
+  "targetLine": 113,
+  "targetFunction": "get",
+  "productionImpact": "An expired item is moved into the hot cache with its original expiry timestamp and served on all subsequent reads until the next rotation. Callers relying on TTL enforcement — such as auth token or rate-limit caches — receive values that should have been invalidated, with a staleness window that can last as long as the entire rotation interval.",
+  "detectedBy": null
+}

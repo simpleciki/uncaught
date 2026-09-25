@@ -1,0 +1,13 @@
+{
+  "id": "FP-07",
+  "kind": "classic-operator",
+  "pattern": "evict-protects-last-item-incorrectly",
+  "description": "evict() allows evicting all items including the last, emptying the cache entirely",
+  "file": "subject/quick-lru/index.js",
+  "find": "Math.max(items.length - 1, 0)",
+  "replace": "Math.max(items.length, 0)",
+  "targetLine": 212,
+  "targetFunction": "evict",
+  "productionImpact": "Callers who pass a large count expecting to keep at least one item will drain the cache entirely. The next request misses on all keys, causing a thundering-herd against the backing store, and onEviction callbacks fire for the last surviving item, potentially triggering erroneous downstream invalidations.",
+  "detectedBy": null
+}

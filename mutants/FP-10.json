@@ -1,0 +1,13 @@
+{
+  "id": "FP-10",
+  "kind": "semantic",
+  "pattern": "ascending-iterator-yields-duplicates",
+  "description": "#entriesAscending yields promoted keys twice, inflating the stream used by resize() and evict()",
+  "file": "subject/quick-lru/index.js",
+  "find": "\t\tfor (const item of this.#oldCache) {\n\t\t\tconst [key, value] = item;\n\t\t\tif (!this.#cache.has(key)) {\n\t\t\t\tconst deleted = this.#deleteIfExpired(key, value);\n\t\t\t\tif (deleted === false) {\n\t\t\t\t\tyield item;\n\t\t\t\t}\n\t\t\t}\n\t\t}",
+  "replace": "\t\tfor (const item of this.#oldCache) {\n\t\t\tconst [key, value] = item;\n\t\t\t\tconst deleted = this.#deleteIfExpired(key, value);\n\t\t\t\tif (deleted === false) {\n\t\t\t\t\tyield item;\n\t\t\t\t}\n\t\t}",
+  "targetLine": 86,
+  "targetFunction": "#entriesAscending",
+  "productionImpact": "Promoted keys appear twice in the stream consumed by resize() and evict(), causing their removeCount and evictCount to be computed from an inflated length. Both methods evict the wrong number of items and leave #size inconsistent with the actual entry count, corrupting the cache state for all subsequent operations.",
+  "detectedBy": null
+}

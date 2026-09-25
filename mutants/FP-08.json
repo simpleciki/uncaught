@@ -1,0 +1,13 @@
+{
+  "id": "FP-08",
+  "kind": "semantic",
+  "pattern": "expiresin-wrong-cache-wins",
+  "description": "expiresIn() consults #oldCache before #cache, returning a stale expiry for promoted keys",
+  "file": "subject/quick-lru/index.js",
+  "find": "const item = this.#cache.get(key) ?? this.#oldCache.get(key);",
+  "replace": "const item = this.#oldCache.get(key) ?? this.#cache.get(key);",
+  "targetLine": 160,
+  "targetFunction": "expiresIn",
+  "productionImpact": "For any key present in both caches the stale #oldCache expiry is returned instead of the live #cache expiry. Callers scheduling re-fetches based on this value will either refresh too early (wasting backend calls) or too late (serving outdated data past the intended TTL), undermining the reliability of any TTL-driven refresh strategy.",
+  "detectedBy": null
+}

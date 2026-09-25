@@ -1,0 +1,13 @@
+{
+  "id": "FP-09",
+  "kind": "semantic",
+  "pattern": "delete-size-underflow",
+  "description": "delete() decrements #size unconditionally, driving it below zero for #oldCache-only keys",
+  "file": "subject/quick-lru/index.js",
+  "find": "\t\tif (deleted) {\n\t\t\tthis.#size--;\n\t\t}",
+  "replace": "\t\t{\n\t\t\tthis.#size--;\n\t\t}",
+  "targetLine": 168,
+  "targetFunction": "delete",
+  "productionImpact": "Deleting a key that exists only in #oldCache drives #size below zero, delaying the next rotation by as many extra insertions as there were such deletes. The cache runs above #maxSize, consuming more memory than the configured limit and deferring eviction callbacks, which can cause out-of-memory pressure in constrained environments.",
+  "detectedBy": null
+}
