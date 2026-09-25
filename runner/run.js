@@ -3,9 +3,13 @@
  * runner/run.js
  *
  * Usage:
- *   node runner/run.js --set <mutants|mutants-heldout>
+ *   node runner/run.js --subject <name>
+ *                      --set <mutants|mutants-heldout>
  *                      --tests <original|original+added|added-only>
  *                      --out <file>
+ *
+ * --subject defaults to "quick-lru". Subject metadata is loaded from
+ * runner/subjects.json.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -27,16 +31,36 @@ function parseArgs(argv) {
 
 const args = parseArgs(process.argv.slice(2));
 if (!args.set || !args.tests || !args.out) {
-  console.error('Usage: node runner/run.js --set <mutants|mutants-heldout> --tests <original|original+added|added-only> --out <file>');
+  console.error('Usage: node runner/run.js [--subject <name>] --set <mutants|mutants-heldout> --tests <original|original+added|added-only> --out <file>');
   process.exit(1);
 }
 
-// ─── Paths ───────────────────────────────────────────────────────────────────
+// ─── Subject resolution ───────────────────────────────────────────────────────
 const ROOT = path.resolve('.');
-const SUBJECT_DIR = path.join(ROOT, 'subject', 'quick-lru');
-const SUBJECT_FILE = path.join(SUBJECT_DIR, 'index.js');
+const SUBJECTS_FILE = path.join(ROOT, 'runner', 'subjects.json');
+
+let subjects;
+try {
+  subjects = JSON.parse(fs.readFileSync(SUBJECTS_FILE, 'utf8'));
+} catch (err) {
+  console.error(`[run] Cannot read runner/subjects.json: ${err.message}`);
+  process.exit(1);
+}
+
+const subjectName = args.subject ?? 'quick-lru';
+
+if (!subjects[subjectName]) {
+  console.error(`[run] Unknown subject "${subjectName}". Known subjects: ${Object.keys(subjects).join(', ')}`);
+  process.exit(1);
+}
+
+const subjectMeta = subjects[subjectName];
+const SUBJECT_DIR = path.join(ROOT, subjectMeta.dir);
+const SUBJECT_FILE = path.join(SUBJECT_DIR, subjectMeta.source);
+
+// ─── Paths ───────────────────────────────────────────────────────────────────
 const SET_DIR = path.join(ROOT, args.set);
-const TESTS_ADDED_DIR = path.join(ROOT, 'tests-added');
+const TESTS_ADDED_DIR = path.join(ROOT, 'tests-added', subjectName);
 const WORK_DIR = path.join(ROOT, '.work');
 const OUT_FILE = path.resolve(args.out);
 
@@ -119,11 +143,13 @@ function parseFailingTests(stdout, stderr) {
  * Also applies any needed file operations to the workDir.
  */
 function prepareTestFiles(workDir, addedFiles) {
+  const originalTest = subjectMeta.testFile;
+
   if (args.tests === 'added-only') {
     if (addedFiles.length === 0) {
-      throw new Error('--tests added-only requires at least one file in tests-added/');
+      throw new Error('--tests added-only requires at least one file in tests-added/<subject>/');
     }
-    fs.rmSync(path.join(workDir, 'test.js'), { force: true });
+    fs.rmSync(path.join(workDir, originalTest), { force: true });
     for (const f of addedFiles) {
       fs.copyFileSync(f, path.join(workDir, path.basename(f)));
     }
@@ -134,15 +160,15 @@ function prepareTestFiles(workDir, addedFiles) {
     for (const f of addedFiles) {
       fs.copyFileSync(f, path.join(workDir, path.basename(f)));
     }
-    return ['test.js', ...addedFiles.map(f => path.basename(f))];
+    return [originalTest, ...addedFiles.map(f => path.basename(f))];
   }
 
-  // 'original' or 'original+added' with empty tests-added/
-  return ['test.js'];
+  // 'original' or 'original+added' with empty tests-added/<subject>/
+  return [originalTest];
 }
 
 /**
- * Determine which extra test files to copy (from tests-added/).
+ * Determine which extra test files to copy (from tests-added/<subject>/).
  */
 function getAddedTestFiles() {
   if (!fs.existsSync(TESTS_ADDED_DIR)) return [];
@@ -155,11 +181,13 @@ function getAddedTestFiles() {
 (async () => {
   const startTime = Date.now();
 
+  console.log(`[run] Subject: ${subjectName} (${SUBJECT_DIR})`);
+
   // 1. Validate mutant set
   console.log(`[run] Validating ${args.set}…`);
   let valid, skipped;
   try {
-    ({ valid, skipped } = validateSet(SET_DIR, SUBJECT_FILE));
+    ({ valid, skipped } = validateSet(SET_DIR, SUBJECT_FILE, subjectName));
   } catch (err) {
     console.error(err.message);
     process.exit(1);
@@ -292,9 +320,9 @@ function getAddedTestFiles() {
         throw new Error('Subject file was modified during run!');
       }
 
-      // Apply mutant edit
-      const indexPath = path.join(workDir, 'index.js');
-      const original = fs.readFileSync(indexPath, 'utf8');
+      // Apply mutant edit to the subject's source file (e.g. index.js)
+      const sourcePath = path.join(workDir, subjectMeta.source);
+      const original = fs.readFileSync(sourcePath, 'utf8');
       const mutated = original.replace(mutant.find, mutant.replace);
 
       if (mutated === original) {
@@ -307,7 +335,7 @@ function getAddedTestFiles() {
         };
       }
 
-      fs.writeFileSync(indexPath, mutated, 'utf8');
+      fs.writeFileSync(sourcePath, mutated, 'utf8');
 
       // Prepare test files (copies added tests, handles added-only mode)
       const testFiles = prepareTestFiles(workDir, addedFiles);
@@ -386,6 +414,7 @@ function getAddedTestFiles() {
   // 8. Write results
   const output = {
     date: new Date().toISOString(),
+    subject: subjectName,
     subjectCommit: 'a2190eb',
     testsUsed: args.tests,
     testCount: baselineTestCount,
@@ -406,7 +435,7 @@ function getAddedTestFiles() {
   console.log(`[run] Flaky tests: ${flakyTests.length}`);
 
   if (!checksumMatch) {
-    console.error('[run] ERROR: subject checksum mismatch — subject/quick-lru/index.js was modified!');
+    console.error(`[run] ERROR: subject checksum mismatch — ${SUBJECT_FILE} was modified!`);
     process.exit(1);
   }
 

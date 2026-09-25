@@ -12,11 +12,13 @@ const REQUIRED_FIELDS = [
 ];
 
 /**
- * @param {string} setDir  - path to mutants/ or mutants-heldout/
- * @param {string} subjectFile - absolute path to subject/quick-lru/index.js
+ * @param {string} setDir      - path to mutants/ or mutants-heldout/
+ * @param {string} subjectFile - absolute path to the subject's source file
+ * @param {string} [subjectName] - name of the subject (e.g. "quick-lru"); used
+ *                               for scoping the baseline duplicate check
  * @returns {{ valid: object[], skipped: object[] }}  throws on any error
  */
-export function validateSet(setDir, subjectFile) {
+export function validateSet(setDir, subjectFile, subjectName = 'quick-lru') {
   const files = fs.readdirSync(setDir)
     .filter(f => f.endsWith('.json'))
     .sort();

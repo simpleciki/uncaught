@@ -1,0 +1,12 @@
+{
+  "quick-lru": {
+    "dir": "subject/quick-lru",
+    "source": "index.js",
+    "testFile": "test.js"
+  },
+  "dot-prop": {
+    "dir": "subject/dot-prop",
+    "source": "index.js",
+    "testFile": "test.js"
+  }
+}
