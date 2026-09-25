@@ -1,68 +1,121 @@
-# IBM Hackathon GitHub Project Template
+# uncaught
 
-This GitHub project template is for IBM Hackathon projects. It includes pre-configured security files to help prevent accidental credential commits and potential account suspension during the hackathon.
+**Your tests are green. Are they guarding anything?**
 
-## 🚀 Quick Start
+uncaught plants the kinds of bugs real systems ship, runs your test suite once per bug, and shows which bugs got through. IBM Bob then writes the missing tests. uncaught checks those tests the same way, on bugs they were never shown, and keeps attacking until the suite holds.
 
-1. **Use this template to create your project:**
-   - Click "Use this template" button above and select "Create a new repository"
-   - Name your repository
-   - Click "Create repository"
+Built with IBM Bob for the IBM Bob 2.0 Hackathon (lablab.ai, September 2026).
 
-2. **Clone your new repository:**
+- **Demo page:** _added after deployment_
+- **Every number below is read from `results/*.json`** and can be reproduced with the commands in [Reproduce](#reproduce).
 
-   ```bash
-   git clone https://github.com/HACKATHON-ORG/your-repo-name.git
-   cd your-repo-name
-   ```
+## The problem
 
-3. **Set up environment variables:**
+A pull request changes code, CI is green, the reviewer merges. Green means no test failed. It does not mean a test *would* fail if the code were wrong. Checking that by hand means breaking the code on purpose, one bug at a time, and re-running the suite each time, so nobody does it. Blind spots are found in production.
 
-   ```bash
-   # Copy the example file
-   cp .env.example .env
+Classic mutation tools automate this with operator flips (`<` to `<=`) and produce hundreds of mutants, many of them noise. uncaught plants bugs from **failure patterns that show up in real incidents**: stale data served as fresh, the same key counted twice, two names for one key, a safety check quietly narrowed, an empty result treated as success.
 
-   # Edit .env with your actual credentials
-   # Use your preferred editor (nano, vim, code, etc.)
-   nano .env
-   ```
+## What it found
 
-4. **Verify .gitignore is working:**
+Two popular MIT-licensed libraries, pinned to fixed commits. Neither has a bug: the bugs are planted, and the new tests close coverage gaps.
 
-   ```bash
-   # This should NOT show .env file
-   git status
+| Library | Weekly npm downloads | Original tests | Result |
+|---|---|---|---|
+| [quick-lru](https://github.com/sindresorhus/quick-lru) `a2190eb` | 33.7M | 115 | 2 of 10 planted bugs got past the green suite |
+| [dot-prop](https://github.com/sindresorhus/dot-prop) `d5d11c7` | 41.4M | 77 | 6 of 6 caught; a scout-guided round then found 1 blind spot |
 
-   # This should confirm .env is ignored
-   git check-ignore -v .env
-   ```
+Downloads: api.npmjs.org, 2026-09-17 to 2026-09-23.
 
-5. **Start developing!**
+### The loop, run on quick-lru
 
-## 🔒 Security Features
+| Round | Tests | Caught | File |
+|---|---|---|---|
+| 1. Realistic bugs | original 115 | 8 / 10 | `results/before.json` |
+| 2. Bob writes one test per survivor | 115 + 2 | 10 / 10 | `results/after.json` |
+| 3. Bugs Bob never saw (held out) | 115 + 2 | 8 / 9 | `results/heldout.json` |
+| 3b. Bob's tests alone on the held-out bugs | 2 | FP-08-H **survives** | `results/heldout-bob-only.json` |
+| 4. Bob rewrites the tests for the whole pattern | 115 + 26 | 9 / 9 | `results/heldout-r3.json` |
+| 5. Red team: Saboteur reads the new tests and aims at their gaps | 115 + 26 | 4 / 4 | `results/round3.json` |
 
-This template includes:
+Round 3b is the point of the project. Bob's first test fixed the line it was shown (`expiresIn()` reading the stale copy of a key). The same mistake in `peek()` got straight past it. The tests an AI writes need the same scrutiny as the tests a human writes, so uncaught checks them on bugs they were never shown.
 
-- **`.gitignore`** - Prevents committing credentials and live session files
-- **`.bobignore`** - Prevents AI assistants from logging credentials
-- **`.env.example`** - Template for your environment variables
+### On dot-prop
 
-## 📋 Before Every Commit
+A first round of 6 bugs was fully caught. Bob then built a **scout**: it ranks each public function by how many lines of the test file mention it. The next round went after the three thinnest (`unflatten` 19, `escapePath` 22, `deepKeys` 32 mentions, versus 164 for `getProperty`). One bug got through all 77 tests: a looser number check in `normalizeEntries`. On an array with an extra key `'1abc'`, it makes `deepKeys()` return `list[1]` twice instead of `list[1]` and `list.1abc`: two different keys, one path. Run `node docs/examples/dp-r2-3-collision.mjs` to see it. Bob's test now catches it (`results/dot-prop-r2-after.json`, 3 / 3).
 
-Always run this checklist:
+## How IBM Bob was used
 
-- [ ] Reviewed `git diff` for sensitive data
-- [ ] No hardcoded API keys or passwords
-- [ ] `.env` file is NOT in staged changes
-- [ ] No files with "credential" or "secret" in name
-- [ ] Used environment variables for all credentials
+Bob is the engine: it wrote the runner, the scout, every planted bug and every added test. See [`docs/BOB-USAGE.md`](docs/BOB-USAGE.md) for the full statement and [`bob_sessions/`](bob_sessions/) for the 13 task summaries.
 
-## 🆘 Need Help?
+| Bob feature | Where |
+|---|---|
+| Plan mode | Task 01: the first plan, reviewed before any code (`docs/PLAN.md`) |
+| Agent mode | Runner with baseline gate and flaky-test detection; `--subject` for any library; the scout |
+| Custom mode **Saboteur** | Can only write bug files. Planted 32 bugs across both libraries (plus one honest skip) |
+| Custom mode **Guardian** | Can only write tests. Wrote 27 tests in 5 files, with a frozen clock instead of real time |
+| Custom skill **realistic-mutant** | How to plant one honest bug: real location, minimal edit, honest label, production impact |
+| Parallel **subagents** | Drafted the two upstream pull request descriptions while the parent task wrote the usage statement |
 
-- Read [SECURITY.md](SECURITY.MD) for detailed guidelines
-- Contact hackathon support through mentor channel
-- Ask in the hackathon Slack workspace
+39.54 of 40 Bobcoins used, all on the hackathon account.
 
----
+### Who did what
 
-**Remember:** Security is everyone's responsibility. When in doubt, ask for help!
+| | IBM Bob | Claude (Anthropic) |
+|---|---|---|
+| Runner, validator, scout (`runner/`) | all | 0 |
+| Added tests (`tests-added/`) | all | 0 |
+| Planted bugs and pattern catalog | all | 0 |
+| Custom modes and skill (`.bob/`) | all | 2 folder names added to a Saboteur write rule |
+| Design brief, verification log, review of every task, independent re-runs | | all |
+| Demo page (`site/`), this README, the demo script in `docs/examples/` | | all |
+
+Recompute the Bob side: `wc -l runner/*.js runner/*.json tests-added/*/*.js`, `ls mutants*/*.json mutants-dot-prop/r2/*.json | wc -l`, and `git log --stat` for each commit; every Bob commit message names its task.
+
+## We checked Bob, and ourselves
+
+[`docs/VERIFICATION-LOG.md`](docs/VERIFICATION-LOG.md) lists 9 times a result looked done and was not. Every entry has a commit. Some examples: 7 of 20 bug files were invalid JSON behind a clean summary; our own runner reported false catches caused by a test that fails under CPU load with no bug planted; a Bob test could never fail because `size()` caps its answer; and twice, the human was the one who was wrong.
+
+## Reproduce
+
+Requires Node 24. From the repo root:
+
+```bash
+npm install
+node runner/run.js --subject quick-lru --set mutants --tests original --out .work/before.json
+node runner/run.js --subject quick-lru --set mutants-heldout --tests original+added --out .work/heldout-r3.json
+node runner/run.js --subject dot-prop --set mutants-dot-prop/r2 --tests original --out .work/dot-prop-r2.json
+node runner/scout.js --subject dot-prop
+node docs/examples/dp-r2-3-collision.mjs
+```
+
+Each run first validates every bug file, then runs the unmodified library three times to detect flaky tests, then runs one isolated copy per bug. It aborts if the library's source checksum changes. Compare the statuses with the matching file in `results/` (the second command uses all of Bob's current tests, so it matches `results/heldout-r3.json`).
+
+To view the demo page locally: `python -m http.server 8765 --bind 127.0.0.1`, then open `http://127.0.0.1:8765/site/`.
+
+## Limits
+
+- Three baseline runs lower the chance of a false catch from a flaky test. They do not remove it.
+- Some planted bugs are classic operator flips; they are labelled `classic-operator`.
+- quick-lru's first round caught more than we expected. Its suite is good. That is also the point: even a good suite has blind spots.
+- The `'1abc'` collision in dot-prop is shown by a demo script. Bob's test covers the oversized-index case of the same bug; the `'1abc'` case is not covered yet (Bobcoins ran out).
+- The scout counts lines that mention a function name. It is a cheap heuristic, not coverage measurement.
+
+## Repository layout
+
+```
+subject/            unmodified copies of the two libraries (see subject/README.md)
+patterns/           failure-pattern catalog
+mutants*/           planted bugs, one JSON file each
+tests-added/        tests written by Bob, per library
+runner/             run.js, validate.js, scout.js, subjects.json
+results/            every run's output
+site/               demo page, reads results/ at load time
+docs/               brief, plan, verification log, usage statement, upstream PR drafts
+bob_sessions/       IBM Bob task summary screenshots
+```
+
+## Data and license
+
+MIT, see [LICENSE](LICENSE). The two libraries are MIT-licensed and copied unmodified; see [DATA_SOURCES.md](DATA_SOURCES.md). No client data, personal information or social media data is used.
+
+This repository was created from the IBM hackathon template. Its `.gitignore`, `.bobignore` and [SECURITY.MD](SECURITY.MD) credential safeguards are kept.
