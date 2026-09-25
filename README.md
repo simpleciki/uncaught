@@ -6,7 +6,7 @@ uncaught plants the kinds of bugs real systems ship, runs your test suite once p
 
 Built with IBM Bob for the IBM Bob 2.0 Hackathon (lablab.ai, September 2026).
 
-- **Demo page:** _added after deployment_
+- **Demo page:** https://uncaught-simplecikis-projects.vercel.app
 - **Every number below is read from `results/*.json`** and can be reproduced with the commands in [Reproduce](#reproduce).
 
 ## The problem
