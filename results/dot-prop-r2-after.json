@@ -1,0 +1,42 @@
+{
+  "date": "2026-09-25T18:31:03.938Z",
+  "subject": "dot-prop",
+  "subjectCommit": "a2190eb",
+  "testsUsed": "original+added",
+  "testCount": 78,
+  "runtimeMs": 1953,
+  "subjectChecksumBefore": "b4c6d5b46b25510e1a05472a76abdb113b2a120cad2f05b226f5449786a0ddb7",
+  "subjectChecksumAfter": "b4c6d5b46b25510e1a05472a76abdb113b2a120cad2f05b226f5449786a0ddb7",
+  "checksumMatch": true,
+  "flakyTests": [],
+  "alwaysFailingInBaseline": [],
+  "mutants": [
+    {
+      "id": "DP-R2-1",
+      "kind": "semantic",
+      "status": "caught",
+      "failingTests": [
+        "test › deepKeys with function values"
+      ]
+    },
+    {
+      "id": "DP-R2-2",
+      "kind": "semantic",
+      "status": "caught",
+      "failingTests": [
+        "SyntaxError: missing ) after argument list",
+        "dp-r2-3.test.js exited with a non-zero exit code: 1",
+        "SyntaxError: missing ) after argument list",
+        "test.js exited with a non-zero exit code: 1"
+      ]
+    },
+    {
+      "id": "DP-R2-3",
+      "kind": "semantic",
+      "status": "caught",
+      "failingTests": [
+        "dp-r2-3 › two-names-one-key: array index above MAX_ARRAY_INDEX must not be coerced to a number in deepKeys output"
+      ]
+    }
+  ]
+}
