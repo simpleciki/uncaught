@@ -1,0 +1,13 @@
+{
+  "id": "DP-05",
+  "kind": "classic-operator",
+  "pattern": "boundary",
+  "description": "The null/undefined early-exit check compares against pathArray.length instead of pathArray.length - 1, so it fires one segment too early and returns the default before reaching the last key",
+  "file": "subject/dot-prop/index.js",
+  "find": "\t\t\tif (index !== pathArray.length - 1) {",
+  "replace": "\t\t\tif (index !== pathArray.length) {",
+  "targetLine": 296,
+  "targetFunction": "getProperty",
+  "productionImpact": "For any path with two or more segments, hitting `undefined` or `null` at the second-to-last segment now always returns the default value even when the final property exists. Every multi-level read in the application silently misses its target, causing UI fields, config values, and database writes to fall back to defaults and corrupt stored state.",
+  "detectedBy": null
+}

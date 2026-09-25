@@ -1,0 +1,135 @@
+{
+  "date": "2026-09-25T18:06:43.568Z",
+  "subject": "dot-prop",
+  "subjectCommit": "a2190eb",
+  "testsUsed": "original",
+  "testCount": 77,
+  "runtimeMs": 3272,
+  "subjectChecksumBefore": "b4c6d5b46b25510e1a05472a76abdb113b2a120cad2f05b226f5449786a0ddb7",
+  "subjectChecksumAfter": "b4c6d5b46b25510e1a05472a76abdb113b2a120cad2f05b226f5449786a0ddb7",
+  "checksumMatch": true,
+  "flakyTests": [],
+  "alwaysFailingInBaseline": [],
+  "mutants": [
+    {
+      "id": "DP-01",
+      "kind": "semantic",
+      "status": "caught",
+      "failingTests": [
+        "getProperty - with array indexes",
+        "prevent setting/getting `__proto__`",
+        "prevent setting/getting `prototype`",
+        "return default value if path is invalid",
+        "edge cases - property name conflicts",
+        "array paths - getProperty"
+      ]
+    },
+    {
+      "id": "DP-02",
+      "kind": "classic-operator",
+      "status": "caught",
+      "failingTests": [
+        "getProperty",
+        "getProperty - with array indexes",
+        "setProperty",
+        "deleteProperty",
+        "hasProperty",
+        "escapePath - keys containing \"]\" round-trip correctly",
+        "deepKeys",
+        "deepKeys - does not throw on sparse array",
+        "setProperty preserves inherited user-defined plain containers",
+        "setProperty preserves inherited user-defined instances and functions",
+        "setProperty preserves inherited bound and proxied functions",
+        "deepKeys with Symbol properties",
+        "deepKeys does not overflow the stack on deeply nested objects",
+        "edge cases for mixed array and object paths",
+        "escaped paths with special characters",
+        "array length property",
+        "deepKeys with numeric string keys on plain objects",
+        "deepKeys with nested empty objects and arrays",
+        "deepKeys with function values",
+        "getProperty with inherited properties",
+        "setting array elements creates sparse arrays correctly",
+        "unflatten - basic dotted keys (issue #116)",
+        "unflatten - bracket indexes and escapes",
+        "unflatten - disallowed keys are ignored safely",
+        "unflatten - bare disallowed keys are silently dropped",
+        "unflatten - last write wins on conflicts",
+        "unflatten - creates sparse arrays where appropriate",
+        "dot notation for array indices support",
+        "dot notation array indices - edge cases and mixed syntax",
+        "dot notation array indices - boundary conditions",
+        "deleteProperty - correct boolean returns",
+        "unified numeric behavior",
+        "string index edge cases - leading zeros treated as strings",
+        "edge cases - empty strings and special characters",
+        "edge cases - deeply nested paths",
+        "edge cases - array length manipulation",
+        "edge cases - prototype chain interactions",
+        "edge cases - unicode and special characters",
+        "edge cases - type coercion and falsy values",
+        "edge cases - circular references and complex objects",
+        "edge cases - array holes and sparse arrays",
+        "parsePath",
+        "parsePath stays linear on repeated empty brackets",
+        "stringifyPath",
+        "stringifyPath and parsePath roundtrip",
+        "stringifyPath with real-world use cases",
+        "array paths - getProperty",
+        "array paths - setProperty",
+        "array paths - hasProperty",
+        "array paths - deleteProperty",
+        "array paths - interoperability use case (issue #120)",
+        "array paths - edge cases",
+        "input validation - special number values in array paths",
+        "edge cases - MAX_ARRAY_INDEX boundary",
+        "edge cases - stringifyPath with empty array and negative indices",
+        "edge cases - deepKeys with empty structures"
+      ]
+    },
+    {
+      "id": "DP-03",
+      "kind": "classic-operator",
+      "status": "caught",
+      "failingTests": [
+        "deepKeys",
+        "deepKeys - does not throw on sparse array",
+        "deepKeys with Symbol properties",
+        "deepKeys does not overflow the stack on deeply nested objects",
+        "deepKeys stays linear on deeply nested objects",
+        "deepKeys with numeric string keys on plain objects",
+        "deepKeys keys under an empty string key resolve",
+        "deepKeys with nested empty objects and arrays",
+        "deepKeys with function values",
+        "setting array elements creates sparse arrays correctly",
+        "edge cases - deepKeys with empty structures"
+      ]
+    },
+    {
+      "id": "DP-04",
+      "kind": "classic-operator",
+      "status": "caught",
+      "failingTests": [
+        "parsePath"
+      ]
+    },
+    {
+      "id": "DP-05",
+      "kind": "classic-operator",
+      "status": "caught",
+      "failingTests": [
+        "getProperty",
+        "edge cases - type coercion and falsy values"
+      ]
+    },
+    {
+      "id": "DP-06",
+      "kind": "semantic",
+      "status": "caught",
+      "failingTests": [
+        "prevent setting/getting `prototype`",
+        "array paths - hasProperty"
+      ]
+    }
+  ]
+}

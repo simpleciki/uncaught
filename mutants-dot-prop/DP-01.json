@@ -1,0 +1,13 @@
+{
+  "id": "DP-01",
+  "kind": "semantic",
+  "pattern": "silent-default",
+  "description": "Empty path returns the object itself instead of the caller's default, hiding that no lookup occurred",
+  "file": "subject/dot-prop/index.js",
+  "find": "if (pathArray.length === 0) {\n\t\treturn value;\n\t}",
+  "replace": "if (pathArray.length === 0) {\n\t\treturn object;\n\t}",
+  "targetLine": 285,
+  "targetFunction": "getProperty",
+  "productionImpact": "When `getProperty(obj, '')` is called with a default value, it returns the root object instead of the default, so callers that rely on the default to detect an absent key silently receive the full object and may overwrite or leak data.",
+  "detectedBy": null
+}

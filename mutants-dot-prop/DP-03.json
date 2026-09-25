@@ -1,0 +1,13 @@
+{
+  "id": "DP-03",
+  "kind": "classic-operator",
+  "pattern": "empty-as-success",
+  "description": "deepKeysIterator no longer short-circuits on an empty root object, so it falls through to the walk loop and yields a spurious empty-string path",
+  "file": "subject/dot-prop/index.js",
+  "find": "\tif (rootEntries.length === 0) {\n\t\treturn;\n\t}",
+  "replace": "\tif (rootEntries.length > 0) {\n\t\treturn;\n\t}",
+  "targetLine": 489,
+  "targetFunction": "deepKeysIterator",
+  "productionImpact": "Callers that iterate `deepKeys({})` to enumerate existing fields receive an empty-string key instead of an empty array, causing downstream code that builds flat maps or deletes by path to attempt operations on a phantom `''` key. Objects with real content are also skipped entirely because the guard now exits on non-empty input.",
+  "detectedBy": null
+}

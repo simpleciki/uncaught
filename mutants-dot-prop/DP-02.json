@@ -1,0 +1,13 @@
+{
+  "id": "DP-02",
+  "kind": "classic-operator",
+  "pattern": "two-names-one-key",
+  "description": "The literal segment '0' is no longer coerced to numeric 0, so dot-notation 'a.0' and bracket-notation 'a[0]' resolve to different keys",
+  "file": "subject/dot-prop/index.js",
+  "find": "\tif (segment === '0') {\n\t\treturn true;\n\t}",
+  "replace": "\tif (segment !== '0') {\n\t\treturn true;\n\t}",
+  "targetLine": 25,
+  "targetFunction": "shouldCoerceToNumber",
+  "productionImpact": "Any path written with dot-notation for index zero (e.g. `items.0`) will read from or write to the string key `'0'` instead of array index `0`, so `getProperty(arr, 'items.0')` silently returns `undefined` while `getProperty(arr, 'items[0]')` returns the correct element. Schema migrations and JSON-path consumers that normalize paths in either style will silently diverge.",
+  "detectedBy": null
+}

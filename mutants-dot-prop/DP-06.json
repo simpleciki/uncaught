@@ -1,0 +1,13 @@
+{
+  "id": "DP-06",
+  "kind": "semantic",
+  "pattern": "empty-as-success",
+  "description": "hasProperty returns true for an empty path instead of false, reporting every object as having an empty-string key",
+  "file": "subject/dot-prop/index.js",
+  "find": "\tif (pathArray.length === 0) {\n\t\treturn false;\n\t}\n\n\tfor (const key of pathArray) {",
+  "replace": "\tif (pathArray.length === 0) {\n\t\treturn true;\n\t}\n\n\tfor (const key of pathArray) {",
+  "targetLine": 382,
+  "targetFunction": "hasProperty",
+  "productionImpact": "Any code that calls `hasProperty(obj, '')` to guard an operation receives `true` and proceeds as if the empty key exists, so conditional writes, deletes, and authorization checks that rely on existence detection are bypassed for every object regardless of its actual content.",
+  "detectedBy": null
+}

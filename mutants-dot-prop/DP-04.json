@@ -1,0 +1,13 @@
+{
+  "id": "DP-04",
+  "kind": "classic-operator",
+  "pattern": "guard-weakened",
+  "description": "The disallowed-key length guard uses strict less-than instead of less-than-or-equal, so a segment exactly as long as the longest disallowed key ('constructor', 11 chars) skips the prototype-pollution check",
+  "file": "subject/dot-prop/index.js",
+  "find": "\t\t\t\t&& currentSegment.length <= maxDisallowedKeyLength",
+  "replace": "\t\t\t\t&& currentSegment.length < maxDisallowedKeyLength",
+  "targetLine": 130,
+  "targetFunction": "parsePath",
+  "productionImpact": "A path segment of exactly 11 characters (the same length as `constructor`) bypasses the `disallowedKeys` membership check, so `__proto__` (10 chars, still checked) is blocked but `constructor` itself is not — allowing callers to write `obj.constructor.prototype.isAdmin = true` and pollute every object in the runtime.",
+  "detectedBy": null
+}
