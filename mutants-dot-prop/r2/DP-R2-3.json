@@ -1,0 +1,13 @@
+{
+  "id": "DP-R2-3",
+  "kind": "semantic",
+  "pattern": "two-names-one-key",
+  "description": "normalizeEntries uses !Number.isNaN(parseInt(key,10)) instead of shouldCoerceToNumber, coercing array indices above MAX_ARRAY_INDEX (1,000,000) to numbers — no deepKeys test exercises a sparse array with an index exceeding that bound",
+  "file": "subject/dot-prop/index.js",
+  "find": "\t\t\tconst normalizedKey = shouldCoerceToNumber(key)",
+  "replace": "\t\t\tconst normalizedKey = !Number.isNaN(Number.parseInt(key, 10))",
+  "targetLine": 411,
+  "targetFunction": "normalizeEntries",
+  "productionImpact": "When deepKeys traverses an array with a numeric index above 1,000,000 (e.g. a high-water-mark sparse buffer), the over-large index is coerced to a number and emitted as a bracket path. Any downstream code that uses this path with getProperty or setProperty will treat the segment as a numeric array index and attempt to allocate a > 1,000,000 element array, exhausting memory and crashing the process.",
+  "detectedBy": null
+}

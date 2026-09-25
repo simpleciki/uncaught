@@ -1,0 +1,13 @@
+{
+  "id": "DP-R2-1",
+  "kind": "semantic",
+  "pattern": "two-names-one-key",
+  "description": "ancestors.delete is dropped on frame pop, so a shared (DAG) object already visited under one key is treated as circular and silently skipped when encountered under a second key — no test exercises deepKeys with a shared sub-object referenced from two distinct paths",
+  "file": "subject/dot-prop/index.js",
+  "find": "\t\t\tancestors.delete(stack.pop().object);",
+  "replace": "\t\t\tstack.pop();",
+  "targetLine": 509,
+  "targetFunction": "deepKeysIterator",
+  "productionImpact": "Any object graph where the same sub-object is referenced from two or more keys (a DAG) loses all keys under the second and subsequent references — deepKeys silently returns an incomplete list, so code that rebuilds a flat map from a live object (e.g. form serialisers, state differs, cache populators) silently drops fields and corrupts persisted data.",
+  "detectedBy": null
+}

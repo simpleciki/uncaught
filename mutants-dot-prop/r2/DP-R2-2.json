@@ -1,0 +1,13 @@
+{
+  "id": "DP-R2-2",
+  "kind": "semantic",
+  "pattern": "silent-default",
+  "description": "escapePath now also escapes ] characters, producing \\] in output — no test directly asserts that escapePath leaves ] unescaped; round-trip tests still pass because parsePath treats \\] as a valid redundant escape for ]",
+  "file": "subject/dot-prop/index.js",
+  "find": "\treturn path.replaceAll(/[\\\\.[]/g, String.raw`\\$&`);",
+  "replace": "\treturn path.replaceAll(/[\\\\.[]\\]]/g, String.raw`\\$&`);",
+  "targetLine": 403,
+  "targetFunction": "escapePath",
+  "productionImpact": "Keys containing ] are over-escaped — escapePath(']') produces \\] instead of ], and escapePath('a]b') produces a\\]b. While parsePath accepts \\] as a valid escape sequence, any external JSON-path consumer or log system that sees the output path will encounter an unexpected backslash, causing property lookups to silently fail in cross-system integrations.",
+  "detectedBy": null
+}
