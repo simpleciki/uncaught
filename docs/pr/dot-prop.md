@@ -1,3 +1,5 @@
+> Sent upstream as an issue (pull requests there are limited to collaborators): see the README section "Back to the maintainers". This file is the draft written during the hackathon.
+
 # Test: array keys above MAX_ARRAY_INDEX must stay string keys in deepKeys()
 
 dot-prop has no bug here. This pull request adds one test for a case the existing suite does not exercise. The gap was found by mutation testing.

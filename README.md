@@ -43,6 +43,15 @@ Round 3b is the point of the project. Bob's first test fixed the line it was sho
 
 A first round of 6 bugs was fully caught. Bob then built a **scout**: it ranks each public function by how many lines of the test file mention it. It ranked `unflatten` 19, `escapePath` 22 and `deepKeys` 32 mentions, versus 164 for `getProperty`. The next round attacked `escapePath` and two helpers behind `deepKeys`; `unflatten` was not attacked. One bug got through all 77 tests: a looser number check in `normalizeEntries`. On an array with an extra key `'1abc'`, it makes `deepKeys()` return `list[1]` twice instead of `list[1]` and `list.1abc`: two different keys, one path. Run `node docs/examples/dp-r2-3-collision.mjs` to see it. Bob's test now catches the bug (`results/dot-prop-r2-after.json`, 3 / 3) using an oversized index; the `'1abc'` input itself is not covered yet.
 
+### Back to the maintainers
+
+Both repositories limit pull requests to collaborators, so the new tests were offered as issues, each linking a one-commit branch that passes the project's own `npm test` (lint included):
+
+- quick-lru: [sindresorhus/quick-lru#59](https://github.com/sindresorhus/quick-lru/issues/59), 24 tests
+- dot-prop: [sindresorhus/dot-prop#130](https://github.com/sindresorhus/dot-prop/issues/130), 1 test
+
+On the upstream code, FP-10-H and DP-R2-3 are caught only by the new tests.
+
 ## By hand vs uncaught
 
 We timed the manual way once, on one bug (FP-08 in quick-lru): edit the line, run the suite, check the result, revert, run again.
@@ -112,7 +121,8 @@ To view the demo page locally: `python -m http.server 8765 --bind 127.0.0.1`, th
 - Three baseline runs lower the chance of a false catch from a flaky test. They do not remove it.
 - 12 of the 32 runnable bugs are classic operator flips, labelled `classic-operator`; the other 20 are labelled `semantic`. The failure modes are common ones, not taken from cited incidents.
 - quick-lru's first round caught more than we expected. Its suite is good. That is also the point: even a good suite has blind spots.
-- The `'1abc'` collision in dot-prop is shown by a demo script. Bob's test covers the oversized-index case of the same bug; the `'1abc'` case is not covered yet (Bobcoins ran out).
+- The `'1abc'` collision in dot-prop is shown by a demo script. Bob's test covers the oversized-index case of the same bug; the `'1abc'` case is not covered yet. It will be added to the upstream branch after judging, when this repository is no longer frozen as submitted.
+- The loop is fully closed on quick-lru only. dot-prop had no held-out round: its fix is shown to catch the bug it was written for, not yet bugs it was never shown.
 - The scout counts lines that mention a function name. It is a cheap heuristic, not coverage measurement.
 
 ## Repository layout
@@ -125,7 +135,7 @@ tests-added/        tests written by Bob, per library
 runner/             run.js, validate.js, scout.js, subjects.json
 results/            every run's output
 site/               demo page, reads results/ at load time
-docs/               brief, plan, verification log, usage statement, upstream PR drafts
+docs/               brief, plan, verification log, usage statement, upstream drafts
 bob_sessions/       IBM Bob task summary screenshots
 ```
 

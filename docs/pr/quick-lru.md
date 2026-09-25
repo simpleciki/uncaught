@@ -1,3 +1,5 @@
+> Sent upstream as an issue (pull requests there are limited to collaborators): see the README section "Back to the maintainers". This file is the draft written during the hackathon.
+
 # Add tests for a key held in both `#cache` and `#oldCache`
 
 quick-lru has no bug here. This PR closes a coverage gap found by mutation testing: the scenario where a key is written after a cache rotation, leaving it in both `#cache` (live copy) and `#oldCache` (stale copy), is not exercised by the existing suite.
