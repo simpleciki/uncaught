@@ -261,6 +261,15 @@ function getAddedTestFiles() {
     }
   }
 
+  // Guard 4: a failed run must name the tests that failed. A non-zero exit with no
+  // readable test name (a crash, a syntax error in a test file) is never "flaky".
+  for (const [i, r] of baselineResults.entries()) {
+    if (r.exitCode !== 0 && parseFailingTests(r.stdout, r.stderr).length === 0) {
+      console.error(`[run] Baseline gate FAILED: baseline run ${i} exited with code ${r.exitCode} but no failing test could be read. Aborting.`);
+      process.exit(1);
+    }
+  }
+
   // Collect per-run failure sets
   const perRunFailing = baselineResults.map(r =>
     r.exitCode !== 0 ? new Set(parseFailingTests(r.stdout, r.stderr)) : new Set(),
@@ -279,10 +288,38 @@ function getAddedTestFiles() {
     process.exit(1);
   }
 
-  // alwaysFailingInBaseline = tests that failed in ALL 3 runs
+  // alwaysFailingInBaseline = tests that failed in ALL 3 parallel runs
   const alwaysFailingSet = new Set(
     [...perRunFailing[0]].filter(t => perRunFailing[1].has(t) && perRunFailing[2].has(t)),
   );
+
+  // Guard 5: a test that failed in all 3 parallel runs is either broken on the untouched
+  // library or timing-sensitive. Re-run the untouched library alone, up to 3 times. A test
+  // that passes even once on the original code is flaky; one that fails every time means the
+  // original suite is not green, so no score would mean anything: abort.
+  if (alwaysFailingSet.size > 0) {
+    console.log(`[run] ${alwaysFailingSet.size} test(s) failed in all 3 parallel baseline runs; re-running the untouched library alone…`);
+    let stillFailing = new Set(alwaysFailingSet);
+    for (let attempt = 1; attempt <= 3 && stillFailing.size > 0; attempt++) {
+      const solo = await runOneBaseline(`solo-${attempt}`);
+      if (solo.timedOut) {
+        console.error('[run] Baseline gate FAILED: a solo baseline run timed out. Aborting.');
+        process.exit(1);
+      }
+      const soloFailing = new Set(solo.exitCode !== 0 ? parseFailingTests(solo.stdout, solo.stderr) : []);
+      if (solo.exitCode !== 0 && soloFailing.size === 0) {
+        console.error(`[run] Baseline gate FAILED: a solo baseline run exited with code ${solo.exitCode} but no failing test could be read. Aborting.`);
+        process.exit(1);
+      }
+      stillFailing = new Set([...stillFailing].filter(t => soloFailing.has(t)));
+    }
+    if (stillFailing.size > 0) {
+      console.error('[run] Baseline gate FAILED: these tests fail every time on the untouched library, so the suite is not green. Aborting.');
+      for (const t of [...stillFailing].sort()) console.error(`  - ${t}`);
+      process.exit(1);
+    }
+    console.log('[run] Each of them passed at least once on the untouched library: treated as flaky.');
+  }
 
   console.log('[run] Baseline gate passed.');
 
@@ -296,10 +333,6 @@ function getAddedTestFiles() {
     console.log('[run] No flaky tests detected.');
   }
 
-  if (alwaysFailingInBaseline.length > 0) {
-    console.warn(`[run] WARNING: ${alwaysFailingInBaseline.length} test(s) failed in ALL 3 baseline runs (still excluded from catches):`);
-    for (const t of alwaysFailingInBaseline) console.warn(`  - ${t}`);
-  }
 
   // 6. Run mutants (up to 4 in parallel)
   const CONCURRENCY = 4;

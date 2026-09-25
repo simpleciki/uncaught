@@ -119,3 +119,6 @@ build/
 # Add project-specific patterns below
 # ============================================
 .work/
+
+# local AI session transcripts (never published)
+docs/session-archive/
