@@ -1,0 +1,13 @@
+{
+  "id": "FP-08-R3-1",
+  "kind": "semantic",
+  "pattern": "expiresin-wrong-cache-wins",
+  "description": "Ternary branches swapped in expiresIn return: item.expiry-truthy path returns Infinity instead of the real remaining time. Gap: all fp-08 tests call expiresIn on a key whose item.expiry is truthy (maxAge given), then check remaining > 5000; swapped branches return Number.POSITIVE_INFINITY which still satisfies > 5000, so the assertion passes even though the wrong value is returned.",
+  "file": "subject/quick-lru/index.js",
+  "find": "return item.expiry ? item.expiry - Date.now() : Number.POSITIVE_INFINITY;",
+  "replace": "return item.expiry ? Number.POSITIVE_INFINITY : item.expiry - Date.now();",
+  "targetLine": 162,
+  "targetFunction": "expiresIn",
+  "productionImpact": "Every call to expiresIn for a key that was inserted with a maxAge returns Infinity instead of the actual milliseconds remaining, causing all TTL-driven refresh logic to conclude the entry never expires. Tokens and cached data are served indefinitely past their intended TTL until the entry is evicted by size pressure alone.",
+  "detectedBy": null
+}

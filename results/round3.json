@@ -1,0 +1,68 @@
+{
+  "date": "2026-09-25T17:51:52.517Z",
+  "subjectCommit": "a2190eb",
+  "testsUsed": "original+added",
+  "testCount": 141,
+  "runtimeMs": 3307,
+  "subjectChecksumBefore": "500faa18fec161f8a4bbf89db83f4f6cc045b8e91ecb17a5214df7100522d7dd",
+  "subjectChecksumAfter": "500faa18fec161f8a4bbf89db83f4f6cc045b8e91ecb17a5214df7100522d7dd",
+  "checksumMatch": true,
+  "flakyTests": [],
+  "alwaysFailingInBaseline": [],
+  "mutants": [
+    {
+      "id": "FP-08-R3-1",
+      "kind": "semantic",
+      "status": "caught",
+      "failingTests": [
+        "test › expiresIn() returns Infinity when no maxAge",
+        "test › expiresIn() returns <= 0 when expired and does not evict",
+        "test › expiresIn() returns remaining ms for expiring item"
+      ]
+    },
+    {
+      "id": "FP-08-R3-2",
+      "kind": "semantic",
+      "status": "caught",
+      "failingTests": [
+        "test › expiresIn() returns Infinity when no maxAge",
+        "test › expiresIn() returns remaining ms for expiring item"
+      ]
+    },
+    {
+      "id": "FP-10-R3-1",
+      "kind": "classic-operator",
+      "status": "caught",
+      "failingTests": [
+        "test › max size",
+        "test › .evict() respects maxSize after eviction",
+        "test › .evict() maintains cache integrity after multiple operations",
+        "test › .evict() with fractional and edge numeric values",
+        "test › .evict() concurrent with cache capacity triggers",
+        "test › .evict() maintains consistency with size property"
+      ]
+    },
+    {
+      "id": "FP-10-R3-2",
+      "kind": "classic-operator",
+      "status": "caught",
+      "failingTests": [
+        "test › .get() / .set()",
+        "test › .set() - update item",
+        "test › .delete()",
+        "test › .size",
+        "test › .evict() respects maxSize after eviction",
+        "test › .evict() handles edge case inputs",
+        "test › .evict() maintains cache integrity after multiple operations",
+        "test › .evict() with non-integer count coercion edge cases",
+        "test › .evict() interaction with resize method",
+        "test › .evict() with fractional and edge numeric values",
+        "test › .evict() callback execution order and state",
+        "test › .evict() concurrent with cache capacity triggers",
+        "test › .evict() maintains consistency with size property",
+        "test › .evict() keeps at least one item with expired entries",
+        "test › expiresIn() returns remaining ms for expiring item"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "FP-10-R3-1",
+  "kind": "classic-operator",
+  "pattern": "ascending-iterator-yields-duplicates",
+  "description": "size getter: dedup guard inverted so only keys present in BOTH caches are counted toward oldCacheSize, instead of keys present only in #oldCache. Gap: in makeCache() setup (#size=1, #oldCache={a,b}, #cache={a}, maxSize=2), inverted guard counts 'a' (overlap) → oldCacheSize=1 → min(1+1,2)=2 which equals the correct answer; similarly in the maxSize:3 partial-oldCache scenario (#oldCache={a,c}, #cache={a}) → counts 'a' → oldCacheSize=1 → min(1+1,3)=2; both fp-10 size assertions still pass.",
+  "file": "subject/quick-lru/index.js",
+  "find": "\t\tfor (const key of this.#oldCache.keys()) {\n\t\t\tif (!this.#cache.has(key)) {\n\t\t\t\toldCacheSize++;\n\t\t\t}\n\t\t}",
+  "replace": "\t\tfor (const key of this.#oldCache.keys()) {\n\t\t\tif (this.#cache.has(key)) {\n\t\t\t\toldCacheSize++;\n\t\t\t}\n\t\t}",
+  "targetLine": 291,
+  "targetFunction": "size",
+  "productionImpact": "The size getter counts only keys shared between both caches and ignores keys exclusive to #oldCache. Any application branching on cache size — eviction thresholds, capacity monitors, or resize logic — sees a count that omits #oldCache-only entries, causing under-eviction and silent cache overflow beyond the declared maxSize.",
+  "detectedBy": null
+}

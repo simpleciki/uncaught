@@ -26,7 +26,26 @@ export function validateSet(setDir, subjectFile) {
   }
 
   const subjectContent = fs.readFileSync(subjectFile, 'utf8');
-  const findStrings = new Map(); // find → id
+
+  // Pre-compute mutated sources from mutants/ (the canonical baseline set),
+  // unless we ARE running mutants/ itself (avoid double-loading).
+  const ROOT = path.resolve('.');
+  const BASELINE_DIR = path.join(ROOT, 'mutants');
+  const mutatedSources = new Map(); // mutated-source → id  (for duplicate detection)
+
+  if (path.resolve(setDir) !== BASELINE_DIR && fs.existsSync(BASELINE_DIR)) {
+    for (const f of fs.readdirSync(BASELINE_DIR).filter(f => f.endsWith('.json'))) {
+      let m;
+      try {
+        m = JSON.parse(fs.readFileSync(path.join(BASELINE_DIR, f), 'utf8'));
+      } catch { continue; }
+      if (m.skip === true || typeof m.find !== 'string' || typeof m.replace !== 'string') continue;
+      const mutated = subjectContent.replace(m.find, m.replace);
+      if (mutated !== subjectContent) {
+        mutatedSources.set(mutated, m.id);
+      }
+    }
+  }
 
   const valid = [];
   const skipped = [];
@@ -63,13 +82,17 @@ export function validateSet(setDir, subjectFile) {
       );
     }
 
-    // 5. No two mutants share a "find"
-    if (findStrings.has(mutant.find)) {
+    // 5. No two mutants produce the same mutated source (within the set or
+    //    against mutants/).  Two mutants with the same "find" but different
+    //    "replace" are fine; two mutants whose apply produces identical source
+    //    are duplicates regardless of how "find"/"replace" are written.
+    const mutatedSource = subjectContent.replace(mutant.find, mutant.replace);
+    if (mutatedSources.has(mutatedSource)) {
       throw new Error(
-        `[validate] ${file} (${mutant.id}): "find" string already used by ${findStrings.get(mutant.find)}`,
+        `[validate] ${file} (${mutant.id}): produces the same mutated source as ${mutatedSources.get(mutatedSource)}`,
       );
     }
-    findStrings.set(mutant.find, mutant.id);
+    mutatedSources.set(mutatedSource, mutant.id);
 
     valid.push(mutant);
   }

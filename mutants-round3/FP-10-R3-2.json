@@ -1,0 +1,13 @@
+{
+  "id": "FP-10-R3-2",
+  "kind": "classic-operator",
+  "pattern": "ascending-iterator-yields-duplicates",
+  "description": "size getter: fast-path condition inverted from !this.#size to this.#size, so the raw #oldCache.size is returned whenever #size > 0 instead of running the dedup guard loop. Gap: the fp-10 size test (maxSize:3 scenario) has #size=1 and #oldCache={a,c} (2 keys); with the inverted condition, it returns this.#oldCache.size=2, which matches the expected value 2 and the test passes.",
+  "file": "subject/quick-lru/index.js",
+  "find": "\t\tif (!this.#size) {\n\t\t\treturn this.#oldCache.size;\n\t\t}",
+  "replace": "\t\tif (this.#size) {\n\t\t\treturn this.#oldCache.size;\n\t\t}",
+  "targetLine": 286,
+  "targetFunction": "size",
+  "productionImpact": "Whenever #size is non-zero (i.e., on every non-empty cache access), size returns the raw #oldCache.size, which double-counts any key that was promoted to #cache while still in #oldCache. Applications enforcing capacity limits or triggering eviction from the .size property will see an inflated count, causing premature eviction loops or accepting items past the declared maxSize.",
+  "detectedBy": null
+}

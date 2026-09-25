@@ -1,0 +1,13 @@
+{
+  "id": "FP-08-R3-2",
+  "kind": "semantic",
+  "pattern": "expiresin-wrong-cache-wins",
+  "description": "expiresIn returns undefined instead of Number.POSITIVE_INFINITY for keys with no expiry. Gap: every fp-08 test inserts keys with an explicit maxAge, so item.expiry is always truthy and the else-branch (Number.POSITIVE_INFINITY) is never reached by any assertion; replacing Infinity with undefined escapes all tests.",
+  "file": "subject/quick-lru/index.js",
+  "find": "return item.expiry ? item.expiry - Date.now() : Number.POSITIVE_INFINITY;",
+  "replace": "return item.expiry ? item.expiry - Date.now() : undefined;",
+  "targetLine": 162,
+  "targetFunction": "expiresIn",
+  "productionImpact": "Any key inserted without a per-item maxAge (using the global default of Infinity) silently returns undefined from expiresIn instead of Infinity. Callers that do undefined comparisons or arithmetic to schedule refreshes will compute NaN deadlines or trigger immediate eviction, causing unpredictable cache thrashing for non-expiring entries.",
+  "detectedBy": null
+}
