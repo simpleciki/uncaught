@@ -15,7 +15,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { validateSet } from './validate.js';
+import { validateSet, applyMutant } from './validate.js';
 
 // ─── CLI parsing ─────────────────────────────────────────────────────────────
 function parseArgs(argv) {
@@ -323,7 +323,7 @@ function getAddedTestFiles() {
       // Apply mutant edit to the subject's source file (e.g. index.js)
       const sourcePath = path.join(workDir, subjectMeta.source);
       const original = fs.readFileSync(sourcePath, 'utf8');
-      const mutated = original.replace(mutant.find, mutant.replace);
+      const mutated = applyMutant(original, mutant.find, mutant.replace);
 
       if (mutated === original) {
         return {
@@ -415,7 +415,7 @@ function getAddedTestFiles() {
   const output = {
     date: new Date().toISOString(),
     subject: subjectName,
-    subjectCommit: 'a2190eb',
+    subjectCommit: subjectMeta.commit,
     testsUsed: args.tests,
     testCount: baselineTestCount,
     runtimeMs,

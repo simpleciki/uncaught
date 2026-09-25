@@ -1,4 +1,5 @@
-// Every number on the page is computed here from the repo's own result files.
+// Every number on the page is computed here from repo files: results/*.json (test runs),
+// site/subjects.json (downloads, versions, Bobcoins) and docs/VERIFICATION-LOG.md (review rows).
 const RUNS = {
   before: '/results/before.json',
   after: '/results/after.json',

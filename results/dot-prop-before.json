@@ -1,10 +1,10 @@
 {
-  "date": "2026-09-25T18:06:43.568Z",
+  "date": "2026-09-25T19:44:39.229Z",
   "subject": "dot-prop",
-  "subjectCommit": "a2190eb",
+  "subjectCommit": "d5d11c7",
   "testsUsed": "original",
   "testCount": 77,
-  "runtimeMs": 3272,
+  "runtimeMs": 3285,
   "subjectChecksumBefore": "b4c6d5b46b25510e1a05472a76abdb113b2a120cad2f05b226f5449786a0ddb7",
   "subjectChecksumAfter": "b4c6d5b46b25510e1a05472a76abdb113b2a120cad2f05b226f5449786a0ddb7",
   "checksumMatch": true,

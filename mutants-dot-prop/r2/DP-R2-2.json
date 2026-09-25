@@ -9,5 +9,6 @@
   "targetLine": 403,
   "targetFunction": "escapePath",
   "productionImpact": "Keys containing ] are over-escaped — escapePath(']') produces \\] instead of ], and escapePath('a]b') produces a\\]b. While parsePath accepts \\] as a valid escape sequence, any external JSON-path consumer or log system that sees the output path will encounter an unexpected backslash, causing property lookups to silently fail in cross-system integrations.",
-  "detectedBy": null
+  "detectedBy": null,
+  "reviewNote": "Added after cold review (verification log entry 10). As written, the regex no longer matches a single \\, . or [ at all, so escapePath stops escaping them (escapePath('a.b') returns 'a.b'). The description above, written by Saboteur, does not match what the edit does. Status is unchanged: 7 real tests fail."
 }

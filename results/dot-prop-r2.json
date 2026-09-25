@@ -1,10 +1,10 @@
 {
-  "date": "2026-09-25T18:27:28.581Z",
+  "date": "2026-09-25T19:44:41.562Z",
   "subject": "dot-prop",
-  "subjectCommit": "a2190eb",
+  "subjectCommit": "d5d11c7",
   "testsUsed": "original",
   "testCount": 77,
-  "runtimeMs": 1852,
+  "runtimeMs": 2162,
   "subjectChecksumBefore": "b4c6d5b46b25510e1a05472a76abdb113b2a120cad2f05b226f5449786a0ddb7",
   "subjectChecksumAfter": "b4c6d5b46b25510e1a05472a76abdb113b2a120cad2f05b226f5449786a0ddb7",
   "checksumMatch": true,
@@ -24,8 +24,13 @@
       "kind": "semantic",
       "status": "caught",
       "failingTests": [
-        "SyntaxError: missing ) after argument list",
-        "test.js exited with a non-zero exit code: 1"
+        "escapePath",
+        "escapePath - keys containing \"]\" round-trip correctly",
+        "deepKeys",
+        "stringifyPath",
+        "stringifyPath and parsePath roundtrip",
+        "stringifyPath with real-world use cases",
+        "edge cases - stringifyPath with empty array and negative indices"
       ]
     },
     {

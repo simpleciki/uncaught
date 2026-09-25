@@ -7,7 +7,7 @@ uncaught plants the kinds of bugs real systems ship, runs your test suite once p
 Built with IBM Bob for the IBM Bob 2.0 Hackathon (lablab.ai, September 2026).
 
 - **Demo page:** https://uncaught-simplecikis-projects.vercel.app
-- **Every number below is read from `results/*.json`** and can be reproduced with the commands in [Reproduce](#reproduce).
+- **Test results are read from `results/*.json`** and the current ones can be reproduced with the commands in [Reproduce](#reproduce). Download counts, versions and Bobcoins come from `site/subjects.json`.
 
 ## The problem
 
@@ -41,7 +41,7 @@ Round 3b is the point of the project. Bob's first test fixed the line it was sho
 
 ### On dot-prop
 
-A first round of 6 bugs was fully caught. Bob then built a **scout**: it ranks each public function by how many lines of the test file mention it. The next round went after the three thinnest (`unflatten` 19, `escapePath` 22, `deepKeys` 32 mentions, versus 164 for `getProperty`). One bug got through all 77 tests: a looser number check in `normalizeEntries`. On an array with an extra key `'1abc'`, it makes `deepKeys()` return `list[1]` twice instead of `list[1]` and `list.1abc`: two different keys, one path. Run `node docs/examples/dp-r2-3-collision.mjs` to see it. Bob's test now catches it (`results/dot-prop-r2-after.json`, 3 / 3).
+A first round of 6 bugs was fully caught. Bob then built a **scout**: it ranks each public function by how many lines of the test file mention it. It ranked `unflatten` 19, `escapePath` 22 and `deepKeys` 32 mentions, versus 164 for `getProperty`. The next round attacked `escapePath` and two helpers behind `deepKeys`; `unflatten` was not attacked. One bug got through all 77 tests: a looser number check in `normalizeEntries`. On an array with an extra key `'1abc'`, it makes `deepKeys()` return `list[1]` twice instead of `list[1]` and `list.1abc`: two different keys, one path. Run `node docs/examples/dp-r2-3-collision.mjs` to see it. Bob's test now catches the bug (`results/dot-prop-r2-after.json`, 3 / 3) using an oversized index; the `'1abc'` input itself is not covered yet.
 
 ## How IBM Bob was used
 
@@ -51,7 +51,7 @@ Bob is the engine: it wrote the runner, the scout, every planted bug and every a
 |---|---|
 | Plan mode | Task 01: the first plan, reviewed before any code (`docs/PLAN.md`) |
 | Agent mode | Runner with baseline gate and flaky-test detection; `--subject` for any library; the scout |
-| Custom mode **Saboteur** | Can only write bug files. Planted 32 bugs across both libraries (plus one honest skip) |
+| Custom mode **Saboteur** | Can only write bug files and its pattern catalog. Planted 32 bugs across both libraries (plus one honest skip) |
 | Custom mode **Guardian** | Can only write tests. Wrote 27 tests in 5 files, with a frozen clock instead of real time |
 | Custom skill **realistic-mutant** | How to plant one honest bug: real location, minimal edit, honest label, production impact |
 | Parallel **subagents** | Drafted the two upstream pull request descriptions while the parent task wrote the usage statement |
@@ -62,7 +62,7 @@ Bob is the engine: it wrote the runner, the scout, every planted bug and every a
 
 | | IBM Bob | Claude (Anthropic) |
 |---|---|---|
-| Runner, validator, scout (`runner/`) | all | 0 |
+| Runner, validator, scout (`runner/`) | all | after cold review: literal mutant replacement, a parse check, per-subject commit, scout `--out` (log entry 10) |
 | Added tests (`tests-added/`) | all | 0 |
 | Planted bugs and pattern catalog | all | 0 |
 | Custom modes and skill (`.bob/`) | all | 2 folder names added to a Saboteur write rule |
@@ -73,7 +73,7 @@ Recompute the Bob side: `wc -l runner/*.js runner/*.json tests-added/*/*.js`, `l
 
 ## We checked Bob, and ourselves
 
-[`docs/VERIFICATION-LOG.md`](docs/VERIFICATION-LOG.md) lists 9 times a result looked done and was not. Every entry has a commit. Some examples: 7 of 20 bug files were invalid JSON behind a clean summary; our own runner reported false catches caused by a test that fails under CPU load with no bug planted; a Bob test could never fail because `size()` caps its answer; and twice, the human was the one who was wrong.
+[`docs/VERIFICATION-LOG.md`](docs/VERIFICATION-LOG.md) lists 10 times a result looked done and was not, each with the commit that fixed it. Some examples: 7 of 20 bug files were invalid JSON behind a clean summary; our own runner reported false catches caused by a test that fails under CPU load with no bug planted; a Bob test could never fail because `size()` caps its answer; twice, the human was the one who was wrong; and a cold review by a second AI (Codex) found that our runner had scored a bug that broke the file's syntax as "caught" (entry 10).
 
 ## Reproduce
 
@@ -84,11 +84,14 @@ npm install
 node runner/run.js --subject quick-lru --set mutants --tests original --out .work/before.json
 node runner/run.js --subject quick-lru --set mutants-heldout --tests original+added --out .work/heldout-r3.json
 node runner/run.js --subject dot-prop --set mutants-dot-prop/r2 --tests original --out .work/dot-prop-r2.json
-node runner/scout.js --subject dot-prop
+node runner/run.js --subject dot-prop --set mutants-dot-prop --tests original --out .work/dot-prop-before.json
+node runner/run.js --subject dot-prop --set mutants-dot-prop/r2 --tests original+added --out .work/dot-prop-r2-after.json
+node runner/run.js --subject quick-lru --set mutants-round3 --tests original+added --out .work/round3.json
+node runner/scout.js --subject dot-prop --out .work/dot-prop-scout.json
 node docs/examples/dp-r2-3-collision.mjs
 ```
 
-Each run first validates every bug file, then runs the unmodified library three times to detect flaky tests, then runs one isolated copy per bug. It aborts if the library's source checksum changes. Compare the statuses with the matching file in `results/` (the second command uses all of Bob's current tests, so it matches `results/heldout-r3.json`).
+Each run first validates every bug file, then runs the unmodified library three times to detect flaky tests, then runs one isolated copy per bug. It aborts if the library's source checksum changes. Compare the statuses with the matching file in `results/` (the second command uses all of Bob's current tests, so it matches `results/heldout-r3.json`). The other files in `results/` (`after.json`, `heldout*.json` except `heldout-r3.json`) were run with the tests that existed at the commit that added them; check out that commit to reproduce them.
 
 To view the demo page locally: `python -m http.server 8765 --bind 127.0.0.1`, then open `http://127.0.0.1:8765/site/`.
 

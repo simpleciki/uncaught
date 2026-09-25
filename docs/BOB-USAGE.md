@@ -8,7 +8,7 @@ IBM Bob built uncaught. Bob wrote the mutation runner, the scout, every planted 
 
 **Agent mode** (tasks 04, 08, 10). Bob wrote the runner with its baseline gate and flaky-test detection, generalised it to any subject, and wrote the scout that ranks functions by how thinly the tests cover them.
 
-**Two custom modes.** Saboteur can only write bug files; Guardian can only write tests. Saboteur (tasks 03, 07, 09, 11) planted 10 primary bugs, 9 held-out bugs (plus one honest skip), 4 red-team bugs, and 9 bugs in `dot-prop`. Guardian (tasks 05, 06, 12) wrote 27 tests across 5 files.
+**Two custom modes.** Saboteur can only write bug files and its pattern catalog; Guardian can only write tests. Saboteur (tasks 03, 07, 09, 11) planted 10 primary bugs, 9 held-out bugs (plus one honest skip), 4 red-team bugs, and 9 bugs in `dot-prop`. Guardian (tasks 05, 06, 12) wrote 27 tests across 5 files.
 
 **A custom skill.** `realistic-mutant` tells Bob how to plant one honest bug: the line where the failure would really happen, a minimal edit, an honest `semantic` or `classic-operator` label, and a plain production-impact sentence.
 

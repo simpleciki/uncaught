@@ -4,12 +4,41 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
+import { spawnSync } from 'node:child_process';
 
 const REQUIRED_FIELDS = [
   'id', 'kind', 'pattern', 'description', 'file',
   'find', 'replace', 'targetLine', 'targetFunction',
   'productionImpact', 'detectedBy',
 ];
+
+/**
+ * Apply one mutant edit. The replacement is passed through a function so that
+ * "$&", "$1" and "$$" in mutant.replace are inserted literally. With a plain
+ * string, String.prototype.replace expands them (DP-R2-2 was mangled this way).
+ */
+export function applyMutant(source, find, replace) {
+  return source.replace(find, () => replace);
+}
+
+/**
+ * Throws if the mutated source is not valid JavaScript. A mutant that breaks
+ * parsing makes every test fail, which would otherwise be scored as "caught".
+ */
+function assertParses(mutatedSource, label) {
+  const tmp = path.join(os.tmpdir(), `uncaught-parse-${process.pid}-${Date.now()}.mjs`);
+  fs.writeFileSync(tmp, mutatedSource);
+  try {
+    const r = spawnSync(process.execPath, ['--check', tmp], { encoding: 'utf8' });
+    if (r.status !== 0) {
+      const msg = (r.stderr || '').split('\n').find(l => /Error/.test(l)) || 'parse failed';
+      throw new Error(`[validate] ${label}: mutated source does not parse — ${msg.trim()}`);
+    }
+  } finally {
+    fs.rmSync(tmp, { force: true });
+  }
+}
 
 /**
  * @param {string} setDir      - path to mutants/ or mutants-heldout/
@@ -42,7 +71,7 @@ export function validateSet(setDir, subjectFile, subjectName = 'quick-lru') {
         m = JSON.parse(fs.readFileSync(path.join(BASELINE_DIR, f), 'utf8'));
       } catch { continue; }
       if (m.skip === true || typeof m.find !== 'string' || typeof m.replace !== 'string') continue;
-      const mutated = subjectContent.replace(m.find, m.replace);
+      const mutated = applyMutant(subjectContent, m.find, m.replace);
       if (mutated !== subjectContent) {
         mutatedSources.set(mutated, m.id);
       }
@@ -88,13 +117,16 @@ export function validateSet(setDir, subjectFile, subjectName = 'quick-lru') {
     //    against mutants/).  Two mutants with the same "find" but different
     //    "replace" are fine; two mutants whose apply produces identical source
     //    are duplicates regardless of how "find"/"replace" are written.
-    const mutatedSource = subjectContent.replace(mutant.find, mutant.replace);
+    const mutatedSource = applyMutant(subjectContent, mutant.find, mutant.replace);
     if (mutatedSources.has(mutatedSource)) {
       throw new Error(
         `[validate] ${file} (${mutant.id}): produces the same mutated source as ${mutatedSources.get(mutatedSource)}`,
       );
     }
     mutatedSources.set(mutatedSource, mutant.id);
+
+    // 6. The mutated source must still parse.
+    assertParses(mutatedSource, `${file} (${mutant.id})`);
 
     valid.push(mutant);
   }

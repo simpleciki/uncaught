@@ -1,11 +1,13 @@
 {
   "quick-lru": {
     "dir": "subject/quick-lru",
+    "commit": "a2190eb",
     "source": "index.js",
     "testFile": "test.js"
   },
   "dot-prop": {
     "dir": "subject/dot-prop",
+    "commit": "d5d11c7",
     "source": "index.js",
     "testFile": "test.js"
   }

@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 
 const { values } = parseArgs({
-  options: { subject: { type: 'string' } },
+  options: { subject: { type: 'string' }, out: { type: 'string' } },
   strict: true,
 });
 
@@ -59,6 +59,6 @@ const output = {
 };
 
 mkdirSync('results', { recursive: true });
-const outPath = `results/${values.subject}-scout.json`;
+const outPath = values.out ?? `results/${values.subject}-scout.json`;
 writeFileSync(outPath, JSON.stringify(output, null, 2));
 console.log(JSON.stringify(output, null, 2));
