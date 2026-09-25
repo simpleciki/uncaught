@@ -35,6 +35,7 @@
   <p class="kicker">quick-lru · round 1</p>
   <h2>We planted <span data-bind="before.total">…</span> bugs. The green suite caught <span class="counter" data-count="before.caught">0</span> of them.</h2>
   <p>Each bug comes from a failure pattern that shows up in real incidents: stale data served as fresh, the same key counted twice, an expiry boundary off by one millisecond. Every one of <span data-bind="before.testCount">…</span> original tests still passed on the survivors below.</p>
+  <div class="runstrip" data-run="before" aria-hidden="true"></div>
   <div class="cards" data-cards="before.survived"></div>
 </section>
 
@@ -42,12 +43,15 @@
   <p class="kicker">IBM Bob · Guardian mode</p>
   <h2>Bob writes one test per survivor. Caught: <span class="counter good" data-count="after.caught">0</span> / <span data-bind="after.total">…</span></h2>
   <p>Guardian is a custom Bob mode that can only write to <code>tests-added/</code>. Each test must pass on the original code and fail on the bug. Tests use a frozen clock, because one of the original tests fails under CPU load with no bug at all.</p>
+  <div class="runstrip" data-run="after" aria-hidden="true"></div>
+  <figure class="shot reveal"><img src="/site/img/guardian-writes-tests.png" alt="IBM Bob in Guardian mode explaining the two tests it wrote and why each fails on the planted bug" loading="lazy" width="881" height="375"><figcaption>Guardian mode in IBM Bob: each test explains why it passes on the original and fails on the bug.</figcaption></figure>
 </section>
 
 <section class="wrap" id="heldout">
   <p class="kicker">quick-lru · unseen bugs</p>
   <h2>Then we planted bugs Bob never saw. The improved suite caught <span class="counter" data-count="heldout.caught">0</span> / <span data-bind="heldout.total">…</span>.</h2>
   <p>The held-out bugs were hidden from Bob with <code>.bobignore</code> before any test was written. The commit that hides them comes first in the git history.</p>
+  <div class="runstrip" data-run="heldout" aria-hidden="true"></div>
   <div class="cards" data-cards="heldout.survived"></div>
 </section>
 
@@ -64,20 +68,26 @@
   <p class="kicker">Fix the class, not the line</p>
   <h2>Bob rewrote the tests for the whole failure pattern. Unseen bugs caught: <span class="counter good" data-count="heldoutR3.caught">0</span> / <span data-bind="heldoutR3.total">…</span></h2>
   <p>On the way there, review found a test that could never fail: <code>size()</code> caps its answer at <code>maxSize</code>, which hid the double count. Bob first swapped in an easier test; review asked again, and Bob found a real state where the bug shows. Every step is in the <a href="https://github.com/simpleciki/uncaught/blob/main/docs/VERIFICATION-LOG.md">verification log</a>.</p>
+  <div class="runstrip" data-run="heldoutR3" aria-hidden="true"></div>
+  <figure class="shot reveal"><img src="/site/img/guardian-finds-the-state.png" alt="IBM Bob working out a cache state where the double count is not hidden by the size cap" loading="lazy" width="865" height="916"><figcaption>After review, Bob works out a reachable state where the bug is no longer hidden: the correct size is 2, the bug reports 3.</figcaption></figure>
 </section>
 
 <section class="wrap" id="redteam">
   <p class="kicker">Red team</p>
   <h2>Saboteur read the new tests and aimed at their gaps. Caught: <span class="counter good" data-count="round3.caught">0</span> / <span data-bind="round3.total">…</span></h2>
   <p>Saboteur is the second custom Bob mode. It can read code and tests but can only write bug files. This round, the combined suite (original plus Bob's tests) held.</p>
+  <div class="runstrip" data-run="round3" aria-hidden="true"></div>
+  <figure class="shot reveal"><img src="/site/img/saboteur-aims-at-gaps.png" alt="IBM Bob in Saboteur mode listing the exact test gap each new bug is aimed at" loading="lazy" width="855" height="495"><figcaption>Saboteur mode names the test gap each bug is aimed at, such as an assertion loose enough that Infinity passes it.</figcaption></figure>
 </section>
 
 <section class="wrap" id="dotprop">
   <p class="kicker">Second library · dot-prop</p>
   <h2>A second, well-tested library. First round: <span class="counter good" data-count="dp1.caught">0</span> / <span data-bind="dp1.total">…</span> caught.</h2>
+  <div class="runstrip" data-run="dp1" aria-hidden="true"></div>
   <p>So Bob built a scout. It ranks each public function by how many lines of the test file mention it, and the next attack goes where tests are thinnest.</p>
   <div class="scout" id="scout" aria-label="Scout ranking"></div>
   <h3>Scout-guided round: <span class="counter" data-count="dp2.caught">0</span> / <span data-bind="dp2.total">…</span> caught. One real blind spot.</h3>
+  <div class="runstrip" data-run="dp2" aria-hidden="true"></div>
   <div class="cards" data-cards="dp2.survived"></div>
   <div class="example">
     <p class="pair-label">Why it matters, on one more input. This is a demo script (<code>docs/examples/dp-r2-3-collision.mjs</code>), not one of Bob's tests.</p>
@@ -87,6 +97,21 @@ deepKeys({list})
 <span class="bad">with bug: list[0], list[1], list[1]</span>   ← two different keys, one path</code></pre>
   </div>
   <h3>Bob's test for it. Caught: <span class="counter good" data-count="dp2after.caught">0</span> / <span data-bind="dp2after.total">…</span></h3>
+  <div class="runstrip" data-run="dp2after" aria-hidden="true"></div>
+</section>
+
+<section class="wrap" id="bob">
+  <p class="kicker">How IBM Bob built it</p>
+  <h2>Bob is the engine. Every planted bug, every added test and the runner itself.</h2>
+  <ul class="chips reveal">
+    <li><b>Plan mode</b>the first plan, reviewed before any code</li>
+    <li><b>Agent mode</b>runner, scout, every test run</li>
+    <li><b>Saboteur</b>custom mode that can only write bug files</li>
+    <li><b>Guardian</b>custom mode that can only write tests</li>
+    <li><b>realistic-mutant</b>custom skill for planting a bug honestly</li>
+    <li><b>Subagents</b>two in parallel drafted the upstream pull requests</li>
+  </ul>
+  <figure class="shot reveal"><img src="/site/img/parallel-subagents.png" alt="Two IBM Bob subagents running in parallel" loading="lazy" width="870" height="390"><figcaption>Two subagents running in parallel. <span data-bind="bobcoins.used">…</span> of <span data-bind="bobcoins.total">…</span> Bobcoins used, all on the hackathon account.</figcaption></figure>
 </section>
 
 <section class="wrap" id="honest">

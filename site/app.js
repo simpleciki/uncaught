@@ -167,6 +167,24 @@ async function main() {
   document.querySelector('#flaky').textContent = flaky.length ? flaky.join(', ') : 'none';
   document.querySelector('#generated').textContent = data.dp2after.date.slice(0, 10);
 
+  data.bobcoins = meta.bobcoins;
+  for (const node of document.querySelectorAll('[data-bind^="bobcoins."]')) {
+    node.textContent = lookup(data, node.dataset.bind) ?? '?';
+  }
+
+  // Run strips: one square per planted bug, filled in order as if the suite were running.
+  for (const strip of document.querySelectorAll('[data-run]')) {
+    const run = data[strip.dataset.run];
+    const ran = run.mutants.filter(m => m.status !== 'skipped');
+    const label = el('span', 'runstrip-label', `${run.testCount} tests × ${ran.length} bugs`);
+    const cells = ran.map(m => {
+      const cell = el('span', `cell is-${m.status}`, m.id);
+      cell.title = `${m.id}: ${m.status}`;
+      return cell;
+    });
+    strip.replaceChildren(label, ...cells);
+  }
+
   // Write the real numbers first, so a reader who never triggers the animation still sees them.
   for (const node of document.querySelectorAll('[data-count]')) {
     const target = Number(lookup(data, node.dataset.count)) || 0;
@@ -182,6 +200,40 @@ async function main() {
     }
   }, {threshold: 0.6});
   for (const node of document.querySelectorAll('[data-count]')) observer.observe(node);
+
+  setupMotion();
+}
+
+// Reveal-on-scroll and the run-strip sequence. Content is visible by default; motion is layered on top.
+function setupMotion() {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || !('IntersectionObserver' in window)) return;
+  document.documentElement.classList.add('motion');
+
+  for (const section of document.querySelectorAll('main section')) {
+    for (const child of section.children) child.classList.add('reveal');
+  }
+
+  const play = node => {
+    node.classList.add('in');
+    if (node.matches('.runstrip')) {
+      node.querySelectorAll('.cell').forEach((cell, index) => {
+        cell.style.setProperty('--delay', `${index * 140}ms`);
+      });
+    }
+  };
+
+  const observer = new IntersectionObserver(items => {
+    for (const item of items) {
+      if (!item.isIntersecting) continue;
+      play(item.target);
+      observer.unobserve(item.target);
+    }
+  }, {threshold: 0.25, rootMargin: '0px 0px -8% 0px'});
+  for (const node of document.querySelectorAll('.reveal, .runstrip, .scout')) observer.observe(node);
+
+  // Safety net: never leave content hidden, whatever the observer does.
+  setTimeout(() => document.querySelectorAll('.reveal:not(.in), .runstrip:not(.in), .scout:not(.in)').forEach(play), 6000);
 }
 
 main().catch(error => {
