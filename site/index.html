@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>uncaught</title>
+<meta name="description" content="Your tests are green. Are they guarding anything? Mutation testing with realistic failure patterns, built with IBM Bob.">
+<link rel="stylesheet" href="/site/style.css">
+</head>
+<body>
+<header class="hero" id="top">
+  <div class="wrap">
+    <p class="badge"><span class="dot"></span><span data-bind="before.testCount">…</span> tests passing</p>
+    <h1>Green is not guarding.</h1>
+    <p class="lede">We planted the kind of bugs real systems ship into two popular JavaScript libraries. Their test suites stayed green. IBM Bob found the gaps, wrote the missing tests, and then we checked Bob's tests the same way.</p>
+    <div class="stats">
+      <div class="stat"><span class="num" data-count="stats.planted">0</span><span class="lbl">realistic bugs planted</span></div>
+      <div class="stat bad"><span class="num" data-count="stats.escapedFirst">0</span><span class="lbl">got past a green suite</span></div>
+      <div class="stat good"><span class="num" data-count="stats.closed">0</span><span class="lbl">now caught by tests Bob wrote</span></div>
+      <div class="stat"><span class="num" data-count="stats.weekly" data-format="millions">0</span><span class="lbl">weekly npm downloads of the two libraries</span></div>
+    </div>
+    <ol class="loop" aria-label="The uncaught loop">
+      <li>Scout<small>find where tests are thin</small></li>
+      <li>Plant<small>realistic bugs, one at a time</small></li>
+      <li>Run<small>which ones got through?</small></li>
+      <li>Fix<small>Bob writes the missing test</small></li>
+      <li>Verify<small>on bugs the fix never saw</small></li>
+      <li>Attack again<small>until it holds</small></li>
+    </ol>
+  </div>
+</header>
+
+<main>
+<section class="wrap" id="round1">
+  <p class="kicker">quick-lru · round 1</p>
+  <h2>We planted <span data-bind="before.total">…</span> bugs. The green suite caught <span class="counter" data-count="before.caught">0</span> of them.</h2>
+  <p>Each bug comes from a failure pattern that shows up in real incidents: stale data served as fresh, the same key counted twice, an expiry boundary off by one millisecond. Every one of <span data-bind="before.testCount">…</span> original tests still passed on the survivors below.</p>
+  <div class="cards" data-cards="before.survived"></div>
+</section>
+
+<section class="wrap" id="fix1">
+  <p class="kicker">IBM Bob · Guardian mode</p>
+  <h2>Bob writes one test per survivor. Caught: <span class="counter good" data-count="after.caught">0</span> / <span data-bind="after.total">…</span></h2>
+  <p>Guardian is a custom Bob mode that can only write to <code>tests-added/</code>. Each test must pass on the original code and fail on the bug. Tests use a frozen clock, because one of the original tests fails under CPU load with no bug at all.</p>
+</section>
+
+<section class="wrap" id="heldout">
+  <p class="kicker">quick-lru · unseen bugs</p>
+  <h2>Then we planted bugs Bob never saw. The improved suite caught <span class="counter" data-count="heldout.caught">0</span> / <span data-bind="heldout.total">…</span>.</h2>
+  <p>The held-out bugs were hidden from Bob with <code>.bobignore</code> before any test was written. The commit that hides them comes first in the git history.</p>
+  <div class="cards" data-cards="heldout.survived"></div>
+</section>
+
+<section class="wrap" id="checker">
+  <p class="kicker">Who checks the checker?</p>
+  <h2>Bob's test fixed the line it was shown. Move the same bug one function over, and it misses.</h2>
+  <div class="pair">
+    <div class="pair-col"><p class="pair-label">Bob's test was written for this bug. <b class="ok">Caught.</b></p><div data-card-id="mutants/FP-08"></div></div>
+    <div class="pair-col"><p class="pair-label">Same mistake, different function. Bob's test alone: <b class="bad" data-bind="bobOnly.FP-08-H">…</b></p><div data-card-id="mutants-heldout/FP-08-H"></div></div>
+  </div>
+</section>
+
+<section class="wrap" id="class">
+  <p class="kicker">Fix the class, not the line</p>
+  <h2>Bob rewrote the tests for the whole failure pattern. Unseen bugs caught: <span class="counter good" data-count="heldoutR3.caught">0</span> / <span data-bind="heldoutR3.total">…</span></h2>
+  <p>On the way there, review found a test that could never fail: <code>size()</code> caps its answer at <code>maxSize</code>, which hid the double count. Bob first swapped in an easier test; review asked again, and Bob found a real state where the bug shows. Every step is in the <a href="https://github.com/simpleciki/uncaught/blob/main/docs/VERIFICATION-LOG.md">verification log</a>.</p>
+</section>
+
+<section class="wrap" id="redteam">
+  <p class="kicker">Red team</p>
+  <h2>Saboteur read the new tests and aimed at their gaps. Caught: <span class="counter good" data-count="round3.caught">0</span> / <span data-bind="round3.total">…</span></h2>
+  <p>Saboteur is the second custom Bob mode. It can read code and tests but can only write bug files. This round, the combined suite (original plus Bob's tests) held.</p>
+</section>
+
+<section class="wrap" id="dotprop">
+  <p class="kicker">Second library · dot-prop</p>
+  <h2>A second, well-tested library. First round: <span class="counter good" data-count="dp1.caught">0</span> / <span data-bind="dp1.total">…</span> caught.</h2>
+  <p>So Bob built a scout. It ranks each public function by how many lines of the test file mention it, and the next attack goes where tests are thinnest.</p>
+  <div class="scout" id="scout" aria-label="Scout ranking"></div>
+  <h3>Scout-guided round: <span class="counter" data-count="dp2.caught">0</span> / <span data-bind="dp2.total">…</span> caught. One real blind spot.</h3>
+  <div class="cards" data-cards="dp2.survived"></div>
+  <div class="example">
+    <p class="pair-label">What that bug does, on a real input (<code>docs/examples/dp-r2-3-collision.mjs</code>)</p>
+<pre><code>const list = ['a', 'b']; list['1abc'] = 'collides';
+deepKeys({list})
+<span class="ok">original: list[0], list[1], list.1abc</span>
+<span class="bad">with bug: list[0], list[1], list[1]</span>   ← two different keys, one path</code></pre>
+  </div>
+  <h3>Bob's test for it. Caught: <span class="counter good" data-count="dp2after.caught">0</span> / <span data-bind="dp2after.total">…</span></h3>
+</section>
+
+<section class="wrap" id="honest">
+  <p class="kicker">We checked Bob, and ourselves</p>
+  <h2><span class="counter" data-count="log.rows">0</span> times a result looked done and was not.</h2>
+  <p>Invalid JSON behind a clean summary. A timing test that made our own tool report false catches. A test that could not fail. And twice, the human was the one who was wrong. Every entry has a commit.</p>
+  <p><a class="button" href="https://github.com/simpleciki/uncaught/blob/main/docs/VERIFICATION-LOG.md">Read the verification log</a> <a class="button ghost" href="https://github.com/simpleciki/uncaught">Source on GitHub</a></p>
+</section>
+</main>
+
+<footer class="wrap">
+  <p><b>Subjects.</b> <span id="subjects">…</span>. Unmodified copies, MIT licensed. Neither library has a bug: the bugs are planted, and the new tests close coverage gaps.</p>
+  <p><b>Flaky tests excluded from catches.</b> <span id="flaky">…</span></p>
+  <p><b>Limits.</b> Three baseline runs lower the chance of a false catch from a flaky test; they do not remove it. Some bugs are classic operator flips and are labelled as such. The first-round quick-lru bugs were caught more often than we expected: the original suite is good.</p>
+  <p><b>Built with IBM Bob.</b> Bob wrote the runner, the scout, every planted bug and every added test, using Plan mode, Agent mode, two custom modes, a custom skill and parallel subagents. Claude (Anthropic) designed the brief, reviewed and independently re-ran every result, and built this page.</p>
+  <p class="muted">All numbers on this page are read from <code>results/*.json</code> at load time. Generated <span id="generated">…</span>.</p>
+</footer>
+<script src="/site/app.js" type="module"></script>
+</body>
+</html>
