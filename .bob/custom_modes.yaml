@@ -20,7 +20,7 @@ customModes:
     groups:
       - read
       - - edit
-        - fileRegex: "^(patterns/.*\\.md|mutants/.*\\.json|mutants-heldout/.*\\.json|mutants-round3/.*\\.json)$"
+        - fileRegex: "^(patterns/.*\\.md|mutants/.*\\.json|mutants-heldout/.*\\.json|mutants-round3/.*\\.json|mutants-dot-prop/.*\\.json)$"
       - skill
 
   - slug: guardian
