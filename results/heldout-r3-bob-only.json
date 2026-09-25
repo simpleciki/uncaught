@@ -1,0 +1,88 @@
+{
+  "date": "2026-09-25T17:38:38.589Z",
+  "subjectCommit": "a2190eb",
+  "testsUsed": "added-only",
+  "testCount": 26,
+  "runtimeMs": 3369,
+  "subjectChecksumBefore": "500faa18fec161f8a4bbf89db83f4f6cc045b8e91ecb17a5214df7100522d7dd",
+  "subjectChecksumAfter": "500faa18fec161f8a4bbf89db83f4f6cc045b8e91ecb17a5214df7100522d7dd",
+  "checksumMatch": true,
+  "flakyTests": [],
+  "alwaysFailingInBaseline": [],
+  "mutants": [
+    {
+      "id": "FP-01-H",
+      "kind": "semantic",
+      "status": "caught",
+      "failingTests": [
+        "fp-08-class › fp-08: get returns live value not stale value",
+        "fp-08-class › fp-08: peek returns live value not stale value",
+        "fp-05 › expiry-boundary-off-by-one: item at exact expiry millisecond must not be served"
+      ]
+    },
+    {
+      "id": "FP-02-H",
+      "kind": "classic-operator",
+      "status": "caught",
+      "failingTests": [
+        "fp-05 › expiry-boundary-off-by-one: item at exact expiry millisecond must not be served"
+      ]
+    },
+    {
+      "id": "FP-03-H",
+      "kind": "classic-operator",
+      "status": "survived",
+      "failingTests": []
+    },
+    {
+      "id": "FP-04-H",
+      "kind": "semantic",
+      "status": "caught",
+      "failingTests": [
+        "fp-08-class › fp-08: entriesDescending yields live value for key a",
+        "fp-10-class › fp-10: entriesDescending yields key a exactly once",
+        "fp-10-class › fp-10: entriesDescending yields exactly two entries total"
+      ]
+    },
+    {
+      "id": "FP-05-H",
+      "kind": "classic-operator",
+      "status": "skipped",
+      "failingTests": []
+    },
+    {
+      "id": "FP-06-H",
+      "kind": "semantic",
+      "status": "survived",
+      "failingTests": []
+    },
+    {
+      "id": "FP-07-H",
+      "kind": "semantic",
+      "status": "survived",
+      "failingTests": []
+    },
+    {
+      "id": "FP-08-H",
+      "kind": "semantic",
+      "status": "caught",
+      "failingTests": [
+        "fp-08-class › fp-08: peek returns live value not stale value"
+      ]
+    },
+    {
+      "id": "FP-09-H",
+      "kind": "classic-operator",
+      "status": "survived",
+      "failingTests": []
+    },
+    {
+      "id": "FP-10-H",
+      "kind": "semantic",
+      "status": "caught",
+      "failingTests": [
+        "fp-10-class › fp-10: size is not clamped when oldCache is partial"
+      ]
+    }
+  ]
+}
