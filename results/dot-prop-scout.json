@@ -1,0 +1,52 @@
+{
+  "subject": "dot-prop",
+  "date": "2026-09-25T18:14:17.448Z",
+  "commit": "b17e67883f215636a78dabda7ecc8e457374d1b8",
+  "ranked": [
+    {
+      "name": "unflatten",
+      "mentions": 19,
+      "definedAt": 540
+    },
+    {
+      "name": "escapePath",
+      "mentions": 22,
+      "definedAt": 397
+    },
+    {
+      "name": "deepKeys",
+      "mentions": 32,
+      "definedAt": 536
+    },
+    {
+      "name": "deleteProperty",
+      "mentions": 48,
+      "definedAt": 343
+    },
+    {
+      "name": "parsePath",
+      "mentions": 64,
+      "definedAt": 53
+    },
+    {
+      "name": "stringifyPath",
+      "mentions": 65,
+      "definedAt": 457
+    },
+    {
+      "name": "hasProperty",
+      "mentions": 82,
+      "definedAt": 376
+    },
+    {
+      "name": "setProperty",
+      "mentions": 121,
+      "definedAt": 307
+    },
+    {
+      "name": "getProperty",
+      "mentions": 164,
+      "definedAt": 279
+    }
+  ]
+}
