@@ -13,7 +13,7 @@ Built with IBM Bob for the IBM Bob 2.0 Hackathon (lablab.ai, September 2026).
 
 A pull request changes code, CI is green, the reviewer merges. Green means no test failed. It does not mean a test *would* fail if the code were wrong. Checking that by hand means breaking the code on purpose, one bug at a time, and re-running the suite each time, so nobody does it. Blind spots are found in production.
 
-Classic mutation tools automate this with operator flips (`<` to `<=`) and produce hundreds of mutants, many of them noise. uncaught plants bugs from **failure patterns that show up in real incidents**: stale data served as fresh, the same key counted twice, two names for one key, a safety check quietly narrowed, an empty result treated as success.
+Classic mutation tools automate this with operator flips (`<` to `<=`) and produce hundreds of mutants, many of them noise. uncaught plants bugs **modelled on common production failure modes**: stale data served as fresh, the same key counted twice, two names for one key, a safety check quietly narrowed, an empty result treated as success.
 
 ## What it found
 
@@ -24,7 +24,7 @@ Two popular MIT-licensed libraries, pinned to fixed commits. Neither has a bug: 
 | [quick-lru](https://github.com/sindresorhus/quick-lru) `a2190eb` | 33.7M | 115 | 2 of 10 planted bugs got past the green suite |
 | [dot-prop](https://github.com/sindresorhus/dot-prop) `d5d11c7` | 41.4M | 77 | 6 of 6 caught; a scout-guided round then found 1 blind spot |
 
-Downloads: api.npmjs.org, 2026-09-17 to 2026-09-23.
+Downloads: api.npmjs.org, 2026-09-17 to 2026-09-23; the raw responses are in [`data/`](data/).
 
 ### The loop, run on quick-lru
 
@@ -49,11 +49,11 @@ We timed the manual way once, on one bug (FP-08 in quick-lru): edit the line, ru
 
 | | By hand, 1 bug | uncaught, 10 bugs |
 |---|---|---|
-| Wall-clock time | 4 min 38 s | 4.9 s (`results/before.json`, `runtimeMs`, including three baseline runs) |
+| Wall-clock time (one run each) | 4 min 38 s | 4.9 s (`results/before.json`, `runtimeMs`, including three baseline runs) |
 | Misleading results | The first run after planting the bug said "1 test failed", which looks like a catch. It was a timing-sensitive test; it failed again later on the original code | That test is found in the baseline runs and set aside automatically |
 | Judgment needed | Is this failure the bug, or noise? Rerun and compare | None: a bug counts as caught only if a test that is stable on the original code fails |
 
-Most of the manual time went into telling the bug from the noise. One measurement, one person, one bug: read it as an illustration, not a benchmark.
+Most of the manual time went into telling the bug from the noise. These are single observations of different tasks (one bug by hand, ten bugs automated), not a benchmark or a speed-up figure.
 
 ## How IBM Bob was used
 
@@ -74,7 +74,7 @@ Bob is the engine: it wrote the runner, the scout, every planted bug and every a
 
 | | IBM Bob | Claude (Anthropic) |
 |---|---|---|
-| Runner, validator, scout (`runner/`) | all | after cold review: literal mutant replacement, a parse check, per-subject commit, scout `--out` (log entry 10) |
+| Runner, validator, scout (`runner/`) | all | after two cold reviews: literal mutant replacement, a parse check, per-subject commit, scout `--out`, a stricter baseline gate (log entries 10 and 11) |
 | Added tests (`tests-added/`) | all | 0 |
 | Planted bugs and pattern catalog | all | 0 |
 | Custom modes and skill (`.bob/`) | all | 2 folder names added to a Saboteur write rule |
@@ -85,7 +85,7 @@ Recompute the Bob side: `wc -l runner/*.js runner/*.json tests-added/*/*.js`, `l
 
 ## We checked Bob, and ourselves
 
-[`docs/VERIFICATION-LOG.md`](docs/VERIFICATION-LOG.md) lists 10 times a result looked done and was not, each with the commit that fixed it. Some examples: 7 of 20 bug files were invalid JSON behind a clean summary; our own runner reported false catches caused by a test that fails under CPU load with no bug planted; a Bob test could never fail because `size()` caps its answer; twice, the human was the one who was wrong; and a cold review by a second AI (Codex) found that our runner had scored a bug that broke the file's syntax as "caught" (entry 10).
+[`docs/VERIFICATION-LOG.md`](docs/VERIFICATION-LOG.md) lists 11 times a result looked done and was not, each with the commit that fixed it. Some examples: 7 of 20 bug files were invalid JSON behind a clean summary; our own runner reported false catches caused by a test that fails under CPU load with no bug planted; a Bob test could never fail because `size()` caps its answer; twice, the human was the one who was wrong; and a cold review by a second AI (Codex) found that our runner had scored a bug that broke the file's syntax as "caught" (entry 10), and a second one that the baseline gate could pass a library that was not green (entry 11).
 
 ## Reproduce
 
@@ -103,14 +103,14 @@ node runner/scout.js --subject dot-prop --out .work/dot-prop-scout.json
 node docs/examples/dp-r2-3-collision.mjs
 ```
 
-Each run first validates every bug file, then runs the unmodified library three times to detect flaky tests, then runs one isolated copy per bug. It aborts if the library's source checksum changes. Compare the statuses with the matching file in `results/` (the second command uses all of Bob's current tests, so it matches `results/heldout-r3.json`). The other files in `results/` (`after.json`, `heldout*.json` except `heldout-r3.json`) were run with the tests that existed at the commit that added them; check out that commit to reproduce them.
+Each run first validates every bug file, then runs the unmodified library three times to detect flaky tests (a test that fails every time on the unmodified library stops the run), then runs one isolated copy per bug. It aborts if the library's source checksum changes. Compare the statuses with the matching file in `results/` (the second command uses all of Bob's current tests, so it matches `results/heldout-r3.json`). The other files in `results/` (`after.json`, `heldout*.json` except `heldout-r3.json`) were run with the tests that existed at the commit that added them; check out that commit to reproduce them.
 
 To view the demo page locally: `python -m http.server 8765 --bind 127.0.0.1`, then open `http://127.0.0.1:8765/site/`.
 
 ## Limits
 
 - Three baseline runs lower the chance of a false catch from a flaky test. They do not remove it.
-- Some planted bugs are classic operator flips; they are labelled `classic-operator`.
+- 12 of the 32 runnable bugs are classic operator flips, labelled `classic-operator`; the other 20 are labelled `semantic`. The failure modes are common ones, not taken from cited incidents.
 - quick-lru's first round caught more than we expected. Its suite is good. That is also the point: even a good suite has blind spots.
 - The `'1abc'` collision in dot-prop is shown by a demo script. Bob's test covers the oversized-index case of the same bug; the `'1abc'` case is not covered yet (Bobcoins ran out).
 - The scout counts lines that mention a function name. It is a cheap heuristic, not coverage measurement.

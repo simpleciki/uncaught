@@ -34,7 +34,7 @@
 <section class="wrap" id="round1">
   <p class="kicker">quick-lru · round 1</p>
   <h2>We planted <span data-bind="before.total">…</span> bugs. The green suite caught <span class="counter" data-count="before.caught">0</span> of them.</h2>
-  <p>Each bug comes from a failure pattern that shows up in real incidents: stale data served as fresh, the same key counted twice, an expiry boundary off by one millisecond. Every one of <span data-bind="before.testCount">…</span> original tests still passed on the survivors below.</p>
+  <p>Each bug is modelled on a common production failure mode: stale data served as fresh, the same key counted twice, an expiry boundary off by one millisecond. Every one of <span data-bind="before.testCount">…</span> original tests still passed on the survivors below.</p>
   <div class="runstrip" data-run="before" aria-hidden="true"></div>
   <div class="cards" data-cards="before.survived"></div>
 </section>

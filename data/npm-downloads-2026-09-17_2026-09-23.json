@@ -1,0 +1,18 @@
+{
+  "source": "https://api.npmjs.org/downloads/point/2026-09-17:2026-09-23/<package>",
+  "fetched": "2026-09-25",
+  "responses": [
+    {
+      "downloads": 33705432,
+      "start": "2026-09-17",
+      "end": "2026-09-23",
+      "package": "quick-lru"
+    },
+    {
+      "downloads": 41421567,
+      "start": "2026-09-17",
+      "end": "2026-09-23",
+      "package": "dot-prop"
+    }
+  ]
+}
