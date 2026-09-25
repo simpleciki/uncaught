@@ -90,3 +90,5 @@ id_dsa
 # DO NOT REMOVE ABOVE PATTERNS
 # ============================================
 node_modules/
+
+.work/

@@ -1,0 +1,147 @@
+{
+  "date": "2026-09-25T17:08:27.502Z",
+  "subjectCommit": "a2190eb",
+  "testsUsed": "original",
+  "testCount": 115,
+  "runtimeMs": 4895,
+  "subjectChecksumBefore": "500faa18fec161f8a4bbf89db83f4f6cc045b8e91ecb17a5214df7100522d7dd",
+  "subjectChecksumAfter": "500faa18fec161f8a4bbf89db83f4f6cc045b8e91ecb17a5214df7100522d7dd",
+  "checksumMatch": true,
+  "flakyTests": [
+    "expiresIn() returns remaining ms for expiring item"
+  ],
+  "alwaysFailingInBaseline": [],
+  "mutants": [
+    {
+      "id": "FP-01",
+      "kind": "semantic",
+      "status": "caught",
+      "failingTests": [
+        "maxAge: non-recent items can also expire"
+      ]
+    },
+    {
+      "id": "FP-02",
+      "kind": "classic-operator",
+      "status": "caught",
+      "failingTests": [
+        ".get() - limit",
+        ".set() - limit",
+        ".peek()",
+        "`onEviction` is called after `maxSize` is exceeded",
+        "resize removes older items",
+        "resize triggers evictions",
+        ".evict() removes least recently used items",
+        ".evict() with accessed items changes order",
+        ".evict() keeps at least one item",
+        ".evict() triggers onEviction callback",
+        ".evict() default count is 1",
+        ".evict() respects maxSize after eviction",
+        ".evict() handles edge case inputs",
+        ".evict() with extremely large count values",
+        ".evict() works with complex object values",
+        ".evict() with WeakMap/WeakSet values",
+        ".evict() maintains cache integrity after multiple operations",
+        ".evict() with non-integer count coercion edge cases",
+        ".evict() during iteration maintains stability",
+        ".evict() rapid successive calls",
+        ".evict() with circular references",
+        ".evict() with symbols as keys",
+        ".evict() interaction with resize method",
+        ".evict() with custom object toString methods",
+        ".evict() stress test with many items",
+        ".evict() with alternating get/set/evict operations",
+        ".evict() with fractional and edge numeric values",
+        ".evict() callback execution order and state",
+        ".evict() interaction with all iterator methods",
+        ".evict() with forEach method interaction",
+        ".evict() concurrent with cache capacity triggers",
+        ".evict() with peek interactions preserves LRU order",
+        ".evict() maintains consistency with size property",
+        ".evict() type coercion with special objects",
+        ".evict() boundary: evict count equals live items minus one",
+        "maxAge: iterator excludes expired items from old cache",
+        ".evict() with mixed expiry and access patterns",
+        ".evict() performance with large maxAge and many expired items",
+        ".evict() with custom maxAge and global maxAge interaction",
+        "maxAge: non-recent items not expired are valid",
+        "maxAge: calls onEviction for expired non-recent items",
+        "maxAge: evicts expired items on resize",
+        "maxAge: keys() returns only non-expired keys",
+        "maxAge: values() returns only non-expired values",
+        "maxAge: entriesDescending() excludes expired entries from old cache"
+      ]
+    },
+    {
+      "id": "FP-03",
+      "kind": "semantic",
+      "status": "caught",
+      "failingTests": [
+        ".set() - update item"
+      ]
+    },
+    {
+      "id": "FP-04",
+      "kind": "semantic",
+      "status": "caught",
+      "failingTests": [
+        ".keys() - accounts for duplicates",
+        ".values() - accounts for duplicates",
+        ".[Symbol.iterator]() - accounts for duplicates"
+      ]
+    },
+    {
+      "id": "FP-05",
+      "kind": "classic-operator",
+      "status": "survived",
+      "failingTests": []
+    },
+    {
+      "id": "FP-06",
+      "kind": "semantic",
+      "status": "caught",
+      "failingTests": [
+        "resize removes older items",
+        "maxAge: evicts expired items on resize"
+      ]
+    },
+    {
+      "id": "FP-07",
+      "kind": "classic-operator",
+      "status": "caught",
+      "failingTests": [
+        ".evict() keeps at least one item",
+        ".evict() with extremely large count values",
+        ".evict() with maxSize of 1",
+        ".evict() with fractional and edge numeric values",
+        ".evict() keeps at least one item with expired entries",
+        ".evict() edge case: exactly maxSize items with expiry"
+      ]
+    },
+    {
+      "id": "FP-08",
+      "kind": "semantic",
+      "status": "survived",
+      "failingTests": []
+    },
+    {
+      "id": "FP-09",
+      "kind": "semantic",
+      "status": "caught",
+      "failingTests": [
+        ".delete()",
+        ".delete() - limit"
+      ]
+    },
+    {
+      "id": "FP-10",
+      "kind": "semantic",
+      "status": "caught",
+      "failingTests": [
+        "entriesAscending enumerates cache items oldest-first",
+        "entries enumerates cache items oldest-first",
+        "forEach calls the cb function for each cache item oldest-first"
+      ]
+    }
+  ]
+}

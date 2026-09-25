@@ -1,0 +1,8 @@
+{
+  "name": "uncaught",
+  "version": "1.0.0",
+  "type": "module",
+  "devDependencies": {
+    "ava": "^5.3.1"
+  }
+}
